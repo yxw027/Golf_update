@@ -1,0 +1,26 @@
+1) config --> config-viewerでWPfileの抽出処理追加 --> 対応不可
+
+2) imu_rt --> OK (チェック済）
+
+3) gnss-F9P --> OK (チェック待ち）--> linux_timeへの変換が必要
+
+3) localizer --> OK (チェック待ち）
+   --> 速度計算を要確認（gnss-f9pのGPS時間を確認）
+
+4) OMcntl --> OK (チェック待ち）
+
+5) joystick --> OK (チェック待ち）
+
+6) navigate --> OK (チェック待ち）--> 動作しない（要デバッグ）
+
+7) viewer -->
+   vel-viewer --> OK (チェック済)
+   WP-viewer --> OK (チェック済)
+   control-log2txt --> OK (チェック待ち）
+   navi-viewer --> 先読みWP用のviewerを作成予定 --> OK (チェック待ち）
+
+8) detectObstacle --> OK (チェック待ち）
+
+9) urg --> urg-3Dviewerがこれから
+
+10) createWP --> これから
