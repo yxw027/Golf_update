@@ -26,6 +26,7 @@
 #include "gnss-f9p.hpp"
 #include "rtknavi-f9p.hpp"
 #include "utility.hpp"
+#include "framework.hpp"
 
 #define DEBUG
 #ifdef DEBUG
@@ -70,7 +71,6 @@ void RTKNAVI_F9P_BASE::closeGNSSReceiver( void )
 #define SCI_TIMEOUT 5000*SCI_VMIN //[us]
 #define rev_buffer_length	256
 static char str_gga[ rev_buffer_length ] = { '0' };
-//static bool flag_first_loop = true;
 int RTKNAVI_F9P_BASE::readCommand_gga( void )
 {
 	int cnt_gga = 0;
@@ -461,7 +461,11 @@ bool RTKNAVI_F9P::decodeRTKGNSS_gga( rtk_gnss_f9p *dst )
 			return status;
 		}
 		dst->Geoid_height = atof( tmp_gga );//		puts( tmp_gga );
+#ifdef USE_ELEVATION
+		dst->height = dst->elevation; // 標高
+#else
 		dst->height = dst->elevation + dst->Geoid_height; // 楕円対高 = 標高 + ジオイド高
+#endif
 
 	// ***** M *****
 		tmp_gga = strtok( NULL, "," );
@@ -482,7 +486,11 @@ bool RTKNAVI_F9P::decodeRTKGNSS_gga( rtk_gnss_f9p *dst )
 		my_vector_t enu = trans.ecef2enu( ecef, trans.getECEF0( ) );
 		dst->enu.x = enu.a[ _X ];
 		dst->enu.y = enu.a[ _Y ];
+#ifdef USE_ELEVATION
+		dst->enu.z = dst->elevation; // 標高
+#else
 		dst->enu.z = enu.a[ _Z ];
+#endif
 	}
 
 	return status;

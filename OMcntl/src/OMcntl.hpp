@@ -1,7 +1,6 @@
 #ifndef OM_CNTL_HPP
 #define OM_CNTL_HPP
 
-//#include "chkVersion.hpp"
 #define _ACCEL		1
 #define _HANDLE		2
 #define _LEVER		3

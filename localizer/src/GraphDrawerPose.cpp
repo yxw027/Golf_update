@@ -12,15 +12,6 @@ void GraphDrawerPose::setParameters( config_property *c, bool flag )
 {
 	flag_save = flag;
 	setConfig( c );
-//// 初期位置の入力
-	//robot_pos[ _X ] = c->init_pose.x;	
-	//robot_pos[ _Y ] = c->init_pose.y;
-	//robot_pos[ _YAW ] = c->init_pose.theta;
-//// 初期位置の入力
-	//for( int i = 0 ; i < 5 ; i++ ){
-		//pos_data_ring[ i ][ _X ] = c->init_pose.x;	
-		//pos_data_ring[ i ][ _Y ] = c->init_pose.y;
-	//}
 }
 
 void GraphDrawerPose::drawGraph( void )

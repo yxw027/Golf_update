@@ -39,9 +39,6 @@ protected:
 	int wp_data_ring_cnt;
 	// ロボットの描写パラメータ
 	double robot_pos[ 3 ];
-	//double robot[ 5 ][ 2 ];
-	
-	//void fprintf_robot( double *edges, int edge_num, double *pos );
 
 public:
 	GraphDrawerTrajectory( void ) : pos_data_ring_head( 0 ), pos_data_ring_cnt( 0 ), wp_data_ring_head( 0 ), wp_data_ring_cnt( 0 ), flag_save_control( false ), flag_save_localizer( false ) {  }
@@ -68,7 +65,6 @@ class GraphDrawerTrajectory_Proactive : public GraphDrawerTrajectory
 protected:
 	// 先読みWPの蓄積
 	double wp_proactive_data_ring[ WP_DATA_MAX ][ 2 ];
-//	int wp_proactive_id_ring[ WP_DATA_MAX ];
 	int wp_proactive_data_ring_head;
 	int wp_proactive_data_ring_cnt;
 

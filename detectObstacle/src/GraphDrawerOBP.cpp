@@ -7,15 +7,15 @@
 #include "utility.hpp"
 #include "GraphDrawerOBP.hpp"
 
-void GraphDrawerOBP::setScan( urg_fs *urg )
+void GraphDrawerOBP_2D::setScan( urg_fs *urg )
 {
 	scan = *urg;
 }
-void GraphDrawerOBP::setOBPoint( obp_fs *p )
+void GraphDrawerOBP_2D::setOBPoint( obp_fs *p )
 {
 	obp = *p;
 }
-void GraphDrawerOBP::setParameter( bool laser, bool intensity, config_property *c )
+void GraphDrawerOBP_2D::setParameter( bool laser, bool intensity, config_property *c )
 {
 	flag_intensity = intensity;
 	flag_laser = laser;
@@ -74,7 +74,7 @@ void GraphDrawerOBP::setParameter( bool laser, bool intensity, config_property *
 */
 	}
 }
-void GraphDrawerOBP::drawGraph( void )
+void GraphDrawerOBP_2D::drawGraph( void )
 {
 	fprintf( gp, "p " );
 

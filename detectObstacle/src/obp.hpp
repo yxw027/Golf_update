@@ -15,7 +15,6 @@ protected:
 	int pointNThre;		// 障害物と認識するポイント数
 	obp_fs obp;
 	int area_type;
-//	double vel_max, angvel_max;
 	config_property conf;
 	
 	Area dec[ NUM_AREA_TYPE ];
@@ -32,8 +31,6 @@ public:
 	~detectObstacle_Base( void ) {  }
  
 	void setAreaType( int a ){ area_type = a; }
-//	void setVel( double v ){ vel_max = v; }
-
 	obp_fs getObpData( void ){ return obp; }
 	
 	virtual void setParameter( const config_property cnf );

@@ -20,8 +20,6 @@
 #include "utility.hpp"
 #include "config.hpp"
 
-//#define TIME_LAPSE
-
 static int gShutOff = 0;
 static void setSigInt(  );
 static int printShortHelp( const char *programName );

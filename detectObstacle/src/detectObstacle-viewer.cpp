@@ -14,6 +14,7 @@
 #include <getopt.h>
 #include <math.h>
 #include <ssm.hpp>
+#include "framework.hpp"
 #include "urg.hpp"
 #include "detectObstacle.hpp"
 #include "config.hpp"
@@ -52,12 +53,10 @@ int main( int aArgc, char *aArgv[] )
 		
 		int area_type = 0;
 		
-//		GraphDrawerOBP gdrawer; // gnuplotによる描画
-		GraphDrawerOBP_3D gdrawer;
+		GraphDrawerOBP_CLASS gdrawer;
 		gdrawer.setParameter( flag_laser, flag_intensity, &config.property );
 		gdrawer.initGnuplot( );				// gnuplot初期化
 		gdrawer.setRange( 15, 15 );
-//		gdrawer.setRange( 20, 20 );
 		
 		bool update[ 1 ] = { false };
 		SSM_tid update_id[ 1 ] = { -1 };

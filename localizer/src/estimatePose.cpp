@@ -100,7 +100,7 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 				vel[ _Y ] = dy / time_diff;    // y軸方向の速度ベクトルを計算
 				vel[ _V ] = sqrt( vel[ _X ] * vel[ _X ] + vel[ _Y ] * vel[ _Y ] );    // 速度ベクトルのノルムを計算
 				estPose.v = vel[ _V ];
-				printf("%f\n",time_diff );
+//				printf("%f\n",time_diff );
 				
 				// GNSSの方位推定(この後、IMUの方位と融合)	
 				double dx01 = estPose.x - refPos_b01m[ _X ];
@@ -201,60 +201,8 @@ void estimatePose::setInitPose( unsigned int wp_id )
 	estPose.w = 0;
 	imu_offset = estPose.theta;// プログラム実行時のIMUのYaw角はゼロ度	
 }
-/*
-void estimatePose::setInitPose( unsigned int wp_id )
-{
-	wp_gl *wp;		// WP
-	char filename[ STRLEN ];
-	sprintf( filename, "%s", cnf.wp_info.filename );
-	printf( "\nWP FILE = %s\n", filename );		// 確認用
-
-	FILE *fp_wp = isValidFile( filename, "r", "dat" );
-	int wp_num = atoi( getWord( fp_wp ) );
-	if( ( wp = new wp_gl[ wp_num ] ) == NULL ){
-		std::cerr << "Cannot allocate WP variables." << std::endl;
-		exit( EXIT_FAILURE );
-	}
-
-	for( int i = 0; i < wp_num ; i++ ){
-		wp[ i ].id = atoi( getWord( fp_wp ) );
-		wp[ i ].x = atof( getWord( fp_wp ) );
-		wp[ i ].y = atof( getWord( fp_wp ) );
-		double v = atof( getWord( fp_wp ) );
-		if( v > cnf.navi.vel ) v = cnf.navi.vel;
-		if( i == 0 ){
-			wp[ i ].v = 0;
-		} else {
-			wp[ i ].v = v;
-		}
-		wp[ i ].flag_cut = atoi( getWord( fp_wp ) );
-		wp[ i ].area_type = atoi( getWord( fp_wp ) );
-		wp[ i ].gain_id = atoi( getWord( fp_wp ) );
-	}
-	for( int i = 0; i < wp_num ; i++ ){
-		if( i == 0 ){
-			wp[ i ].theta = atan2( wp[ i+1 ].y - wp[ i ].y, wp[ i+1 ].x - wp[ i ].x );
-		} else {
-			wp[ i ].theta = atan2( wp[ i ].y - wp[ i-1 ].y, wp[ i ].x - wp[ i-1 ].x );
-		}
-	}
-	fclose( fp_wp );
-	
-	if( ( wp_id >= wp_num ) || ( wp_id < 1 ) ){
-		fprintf( stderr, "[\033[1m\033[31mERROR\033[30m\033[0m]: WP ID for start is wrong\n" );
-	} else {
-		estPose.x = wp[ wp_id-1 ].x;
-		estPose.y = wp[ wp_id-1 ].y;
-		estPose.theta = wp[ wp_id-1 ].theta;
-		estPose.v = 0;
-		estPose.w = 0;
-		imu_offset = estPose.theta;// プログラム実行時のIMUのYaw角はゼロ度	
-	}
-}*/
 void estimatePose::printEstPose( void )	// 確認用
 {
-//	printf( "[estimate] " );
 	printf( "x=%f, y=%f, th=%f ", estPose.x, estPose.y, estPose.theta );
-//	printf( "\n" );
 	printf( "v=%f, w=%f\n", estPose.v, estPose.w );
 }

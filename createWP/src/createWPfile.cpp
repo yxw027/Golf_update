@@ -3,6 +3,7 @@
  * 
  * Date : 2018.04.10
  * Update : 2019.09.03
+ * Update : 2021.04.11
  * Author : T.Hasegawa
  *  
  */
@@ -46,7 +47,6 @@ int main( int aArgc, char *aArgv[ ] )
 
 		GraphDrawerWP drawer;
 		drawer.setParameter( &config.property, path );
-//		drawer.initWPFile( );
 		drawer.initGnuplot( );
 
 		Gprint( "Start createWPfile\n" );
@@ -69,14 +69,13 @@ int main( int aArgc, char *aArgv[ ] )
 			if( update[ INDEX_LOCALIZER ] ){
 				
 				drawer.setPose( &localizer.data );
-//				drawer.saveWPFile( &localizer.data, localizer.time );
 				drawer.drawGraph( );
 				
 			} else {
 				usleepSSM( dT * 1000 );
 			}
 		}
-
+		drawer.writeSaveFile( );
 	}
 	catch (std::runtime_error const & error){
 		std::cout << error.what() << std::endl;
@@ -84,7 +83,6 @@ int main( int aArgc, char *aArgv[ ] )
 	catch (...){
 		std::cout << "An unknown fatal error has occured. Aborting." << std::endl;
 	}
-//	drawer.closeSaveFile( );
 	Terminate( );
 
 	return EXIT_SUCCESS;

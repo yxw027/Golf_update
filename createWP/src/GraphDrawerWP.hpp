@@ -19,7 +19,6 @@ class GraphDrawerWP : public GraphDrawer_RobotBase
 private:
 	createWP_Base create_wp;
 	
-//	config_property conf;
 	// 推定ポーズの蓄積（localizer）
 	double pos_data_ring[ PLOT_DATA_MAX ][ 2 ];
 	int pos_data_ring_head;
@@ -30,7 +29,6 @@ private:
 	int wp_data_ring_cnt;
 	// ロボットの描写パラメータ
 	double robot_pos[ 3 ];
-//	double robot[ 5 ][ 2 ];
 
 public:
 	GraphDrawerWP( void ) : pos_data_ring_head( 0 ), pos_data_ring_cnt( 0 ), wp_data_ring_head( 0 ), wp_data_ring_cnt( 0 ) { }
@@ -38,9 +36,7 @@ public:
 
 	void setParameter( config_property *c, char *path );
 	void setPose( localizer *data );
-//	void initWPFile( void );
 	void writeSaveFile( void );
-//	virtual void saveWPFile( localizer *data, double time );
 
 	void drawGraph( void );
 };

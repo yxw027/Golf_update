@@ -2,7 +2,7 @@
 
 2) imu_rt --> OK (チェック済）
 
-3) gnss-F9P --> OK (チェック待ち）--> linux_timeへの変換が必要
+3) gnss-F9P --> OK (チェック待ち）--> GPS時間を秒に変換（linux_timeへの変換が必要）
 
 3) localizer --> OK (チェック待ち）
    --> 速度計算を要確認（gnss-f9pのGPS時間を確認）
@@ -11,7 +11,7 @@
 
 5) joystick --> OK (チェック待ち）
 
-6) navigate --> OK (チェック待ち）--> 動作しない（要デバッグ）
+6) navigate --> OK (チェック待ち）--> 動作しない（要デバッグ）--> デバッグ済
 
 7) viewer -->
    vel-viewer --> OK (チェック済)
@@ -23,4 +23,5 @@
 
 9) urg --> urg-3Dviewerがこれから
 
-10) createWP --> これから
+10) createWP --> OK (チェック待ち）
+    --> OMcntl(レバー操作)は組み込んでない。クラスを継承して要作成

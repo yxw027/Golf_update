@@ -48,7 +48,6 @@ int main( int aArgc, char *aArgv[ ] )
 		while( !gShutOff ){
 			update[ INDEX_LOCAL ] = false;
 			// get latest data for INDEX_LOCAL
-//			printf("(%d:%d)\n", update_id[ INDEX_LOCAL ],getTID_top( localizer.getSSMId( ) ) );
 			if( update_id[ INDEX_LOCAL ] < getTID_top( localizer.getSSMId( ) ) ){
 				localizer.readLast(  );
 				update[ INDEX_LOCAL ] = true; // 最新情報を読み込む

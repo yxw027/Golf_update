@@ -54,14 +54,6 @@ int main( int aArgc, char *aArgv[] )
 
 		detectObstacle_CLASS obp;
 		obp.setParameter( config.property );
-//		obp.setAreaData( config.property );
-
-		//obp_fs.data.status = TRAVELING;
-		//unsigned int stop_counter = 0, dec_counter = 0;
-		//double dec_dist_min = 50.0, stop_dist_min = 50.0, distance;
-		//double obp_x_stop, obp_y_stop, obp_x_dec, obp_y_dec;
-		//bool stop_flag, dec_flag;
-		//bool flag_freeze_mode = false;
 
 		bool update[ 2 ] = { false, false };
 		SSM_tid update_id[ 2 ] = { -1 };
@@ -90,12 +82,10 @@ int main( int aArgc, char *aArgv[] )
 
 			if( update[ INDEX_WP ] ){
 				obp.setAreaType( wp_gl.data.area_type );
-//				obp.setVel( wp_gl.data.v );
 			}
 			if( update[ INDEX_URG ] ){
 				obp.chkObstacle( &urg_fs.data );
 				obp_fs.data = obp.getObpData( );
-//				obp_fs.data.delay_time = gettimeSSM( ) - urg_fs.time;
 				obp_fs.write( urg_fs.time );
 				
 //				obp.printObstData( );	// 確認用
@@ -183,14 +173,7 @@ static void setupSSM( void )
 		throw std::runtime_error( "[\033[1m\033[31mERROR\033[30m\033[0m]:fail to open obp_fs on ssm.\n" );
 	else
 		std::cerr << "OK.\n";	
-/*				
-	// obp_fs を作成
-	std::cerr << "create obp_fs ... ";
-	if( !OBPoint->create( 1, ( double )dT/1000.0 ) )
-		throw std::runtime_error("[\033[1m\033[31mERROR\033[30m\033[0m]:fail to create obp_fs on ssm.\n");
-	else
-		std::cerr << "OK.\n";
-*/		
+	
 	// wp_glを開く
 	std::cerr << "open wp_gl ... ";
 	if( !WP->open( SSM_READ ) )

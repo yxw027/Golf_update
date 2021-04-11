@@ -12,8 +12,6 @@
 #include <getopt.h>
 #include <math.h>
 #include <ssm.hpp>
-//#include <ssmtype/joystick.hpp>
-//#include <rppjs-ps3.h>
 #include <ssmtype/spur-odometry.h>
 #include "detectObstacle.hpp"
 #include "obp.hpp"
@@ -56,10 +54,7 @@ void detectObstacle_Base::setParameter( const config_property cnf )
 	printAreaData( );	// 確認用
 	
 	obp.status = TRAVELING;	// スタート時は走行モード
-//	area_type = 0;
 	setAreaType( 0 );
-	//vel_max = conf.navi.vel;
-	//angvel_max = conf.navi.ang_vel;
 }
 void detectObstacle_Base::printObstData( void )
 {
@@ -162,23 +157,16 @@ void detectObstacle_2D::chkObstacle( urg_fs *urg )
 
 	if( stop_flag == true ){
 		obp.status = STOP;
-//		obp.pos.v = 0.0;
 		obp.pos[ 0 ] = obp_x_stop;
 		obp.pos[ 1 ] = obp_y_stop;
 		obp.pos[ 2 ] = atan2( obp_x_stop, obp_y_stop );
 	} else if( dec_flag == true ){
 		obp.status = DECELERATION;
-//		obp.pos.v = 0.3 + ( vel_max - 0.3 ) * ( obp_x_dec - dec[ area_type ].p1.x ) / ( dec[ area_type ].p3.x - dec[ area_type ].p1.x );
-//		obp.pos.w = ( M_PI/4 ) + ( angvel_max - ( M_PI/4 ) ) * ( obp_x_dec - dec[ area_type ].p1.x ) / ( dec[ area_type ].p3.x - dec[ area_type ].p1.x );
-//		if( obp.pos.v < 0.3 )	obp.pos.v = 0.3;
-//		if( obp.pos.w < M_PI/4 )	obp.pos.v = M_PI/4;
 		obp.pos[ 0 ] = obp_x_dec;
 		obp.pos[ 1 ] = obp_y_dec;
 		obp.pos[ 2 ] = atan2( obp_x_dec, obp_y_dec );
 	} else {
 		obp.status = TRAVELING;
-//		obp.pos.v = vel_max;
-//		obp.pos.w = angvel_max;
 		obp.pos[ 0 ] = 0;
 		obp.pos[ 1 ] = 0;
 		obp.pos[ 2 ] = 0;
@@ -257,7 +245,6 @@ void detectObstacle_3D::chkObstacle( urg_fs *urg )
 			
 //			printf("%d %f %f %f %f\n",i, tz_sum, tz_average, tz, dL );
 		}
-//		if( flag_detectObp ) break;
 	}
 	// あるオブジェクトのクラスタリングが終了せずループを抜けた場合の処理
 	if( flag_startChecking_obstacle ){

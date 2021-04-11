@@ -4,18 +4,13 @@
   */
 #include <stdlib.h>
 #include <string.h>
-//#include <ssmtype/spur-odometry.h>
-//#include "GraphDrawerWP.hpp"
 #include <math.h>
 #include "createWP.hpp"
 #include "utility.hpp"
 
-void createWP_Base::initialize( char *path )
+void createWP_Base::initialize( char *p )
 {
-	//char filename[ STRLEN ];
-	//sprintf( filename, "%s/WP_raw.dat", path );
-	//temp_fp = isValidFile( filename, "w", "dat" );
-	
+	sprintf( path, "%s", p );
 	openWPfile( "WP_raw.dat", path, "w" );
 	
 	wp.id = 1;
@@ -33,6 +28,7 @@ void createWP_Base::openWPfile( const char *file, char *path, const char* mode )
 {
 	char filename[ STRLEN ];
 	char flag_mode[ STRLEN ];
+	sprintf( flag_mode, "%s", mode );
 	
 	if( !strncmp( "WP_raw.dat", file, 10 ) ){
 		sprintf( filename, "%s/%s", path, file );
@@ -46,16 +42,10 @@ void createWP_Base::openWPfile( const char *file, char *path, const char* mode )
 	}
 }
 
-//static unsigned long counter = 1;
 static bool flag_first_loop = true;
 static bool flag_second_loop = true;
 static double pos_prev[ 3 ] = { 0 };
-//static double init_pose[ 3 ] = { 0 };
-//static double vel_d = 0.0; // [m/s]
-//static unsigned int cflag = 0;
-//static unsigned int atype = 0;
-//static unsigned int gid = 0;
-static bool flag_vehicleDirection_old;
+static bool flag_vehicleDirection_old = true;
 static double WP_theta_old;
 bool createWP_Base::setPose( localizer *data )
 {
@@ -63,12 +53,12 @@ bool createWP_Base::setPose( localizer *data )
 	if( data->status ){
 		
 		if( flag_first_loop ){
-		
-			fprintf( temp_fp, "%6d %15.4f %15.4f %15.4f	%15d %25d %12d\n", wp.id, data->estPose.x, data->estPose.y, wp.v, wp.flag_cut, wp.area_type, wp.gain_id );
+			wp.x = data->estPose.x;
+			wp.y = data->estPose.y;
+			fprintf( temp_fp, "%6d %15.4f %15.4f %15.4f	%15d %25d %12d\n", wp.id, wp.x, wp.y, wp.v, wp.flag_cut, wp.area_type, wp.gain_id );
 
 			wp_size++;
 			
-//			wp.id++;
 			pos_prev[ _X ] = data->estPose.x;
 			pos_prev[ _Y ] = data->estPose.y;
 			pos_prev[ _YAW ] = data->estPose.theta;
@@ -87,44 +77,44 @@ bool createWP_Base::setPose( localizer *data )
 			double dy = data->estPose.y - pos_prev[ _Y ];
 			double dL = sqrt( dx * dx + dy * dy );
 			double dtheta = trans_q( data->estPose.theta - pos_prev[ _YAW ] );
-//			fprintf(stderr,"dL=%lf, th=%lf\n",dL, dTheta*180/M_PI );
+//			fprintf(stderr,"dL=%lf, th=%lf\n",dL, dtheta*180/M_PI );
 
 			if( ( dL > distThre ) || ( fabs( dtheta ) > angThre ) || ( flag_vehicleDirection_old != data->dir ) ){
 				
-				if( flag_vehicleDirection_old == data->dir ){ // data->flag_slip(true:前進, false:後退)
+				if( flag_vehicleDirection_old == data->dir ){ // data->dir(true:前進, false:後退)
 					if( data->dir ){
-						wp.v = data->gnss_vel[ _V ];
+						wp.v = data->estPose.v;
 					} else {
-						wp.v = -1.0 * data->gnss_vel[ _V ];
+						wp.v = -1.0 * data->estPose.v;
 					}
 				} else { // 前後退の切替え時
 					double WP_theta = atan2( data->estPose.y - pos_prev[ _Y ], data->estPose.x - pos_prev[ _X ] );
 //					printf("%f - %f = %f\n", WP_theta, WP_theta_old, fabs( WP_theta - WP_theta_old ) );	// 確認用
 					if( fabs( WP_theta - WP_theta_old ) < M_PI/4.0 ){
 						if( flag_vehicleDirection_old ){
-							wp.v = data->gnss_vel[ _V ];
+							wp.v = data->estPose.v;
 						} else {
-							wp.v = -1.0 * data->gnss_vel[ _V ];
+							wp.v = -1.0 * data->estPose.v;
 						}
 					} else {
 						if( data->dir ){
-							wp.v = data->gnss_vel[ _V ];
+							wp.v = data->estPose.v;
 						} else {
-							wp.v = -1.0 * data->gnss_vel[ _V ];
+							wp.v = -1.0 * data->estPose.v;
 						}
 					}
 				}
-				wp.v = ( ( double )( int )( wp.v * 10 ) ) / 10.0;	// 小数点以下１桁にする
+				wp.v = ( ( double )( int )( wp.v * 100 ) ) / 100.0;	// 小数点以下2桁にする
 				wp.id++;
-				fprintf( temp_fp, "%6d %15.4f %15.4f %15.4f	%15d %25d %12d\n", wp.id, data->estPose.x, data->estPose.y, wp.v, wp.flag_cut, wp.area_type, wp.gain_id );
+				wp.x = data->estPose.x;
+				wp.y = data->estPose.y;
+				fprintf( temp_fp, "%6d %15.4f %15.4f %15.4f	%15d %25d %12d\n", wp.id, wp.x, wp.y, wp.v, wp.flag_cut, wp.area_type, wp.gain_id );
 				wp_size++;
 				
 				WP_theta_old = atan2( data->estPose.y - pos_prev[ _Y ], data->estPose.x - pos_prev[ _X ] );
 				pos_prev[ _X ] = data->estPose.x;
 				pos_prev[ _Y ] = data->estPose.y;
 				pos_prev[ _YAW ] = data->estPose.theta;
-				// WPファイル確認用
-//				fprintf( fp4chk, "%f %f %f %f %f\n", time, data->estPose.x, data->estPose.y, WP_theta_old, vel_d );
 								
 				if( flag_second_loop ){
 					flag_second_loop = false;
@@ -140,9 +130,8 @@ bool createWP_Base::setPose( localizer *data )
 
 void createWP_Base::writeInitPose( void )
 {
-	fprintf( savefp, "#	Start Positionn" );
+	fprintf( savefp, "#	Start Position\n" );
 	fprintf( savefp, "# %15.4f %15.4f %15.4f\n",  initPose[ _X ], initPose[ _Y ], initPose[ _YAW ] );
-//	fclose( savefp );
 }
 void createWP_Base::saveWPFile( void )
 {
@@ -151,20 +140,19 @@ void createWP_Base::saveWPFile( void )
 	openWPfile( "WP_raw.dat", path, "r" );
 	
 	writeWPsize( );
-	// ...
+
 	for( int i = 0 ; i < wp_size ; i++ ){
-		wp.id = atoi( temp_fp );
-		wp.x = atof( temp_fp );
-		wp.y = atof( temp_fp );
-		wp.v = atof( temp_fp );
-		wp.flag_cut = atoi( temp_fp );
-		wp.area_type = atoi( temp_fp );
-		wp.gain_id = atoi( temp_fp );
+		wp.id = atoi( getWord( temp_fp ) );
+		wp.x = atof( getWord( temp_fp ) );
+		wp.y = atof( getWord( temp_fp ) );
+		wp.v = atof( getWord( temp_fp ) );
+		wp.flag_cut = atoi( getWord( temp_fp ) );
+		wp.area_type = atoi( getWord( temp_fp ) );
+		wp.gain_id = atoi( getWord( temp_fp ) );
 		fprintf( savefp, "%6d %15.4f %15.4f %15.4f	%15d %25d %12d\n", wp.id, wp.x, wp.y, wp.v, wp.flag_cut, wp.area_type, wp.gain_id );
 	}
 	writeInitPose( );
-	
-	writeWPsize( );
+
 }
 
 void createWP_Base::writeWPsize( void )

@@ -15,7 +15,6 @@
 #include <math.h>
 #include <ssm.hpp>
 
-//#include "gnss.hpp"
 #include "localizer.hpp"
 #include "config.hpp"
 #include "wp.hpp"
@@ -37,7 +36,6 @@ static unsigned int dT = 100;
 static int keyframeSkip = 10;		// キーフレーム間隔
 static bool flag_save_control = false;
 static bool flag_save_localizer = false;
-//static bool flag_monitor_position = false;
 
 static SSMApi <config, config_property> *CONF;
 static SSMApi <localizer> *LOCAL;
@@ -67,7 +65,6 @@ int main( int aArgc, char *aArgv[ ] )
 		tdrawer.setAspectRatio( -0.9 );		// x軸とy軸の比（負にすると中身が一定）
 	
 		unsigned long counter = 0;
-//		double start_time = gettimeSSM( );
 			
 		bool update[ 3 ] = { false };
 		SSM_tid update_id[ 3 ] = { -1 };
@@ -75,19 +72,14 @@ int main( int aArgc, char *aArgv[ ] )
 #define INDEX_WP			1
 #define INDEX_CONTROL		2
 
-		//if( flag_monitor_position ){
-			//tdrawer.setWP( );
-		//} else {
-			// 初期値を入力する
-			SSM_tid tid = getTID_top( wp_gl.getSSMId( ) );
-			if( tid > 0 ){
-				wp_gl.read( tid-1 );	// MUST check
-//				wp_gl.read( tid );	// MUST check
-				tdrawer.setWP( &wp_gl.data );
-			}
-			wp_gl.readLast(  );
+		// 初期値を入力する
+		SSM_tid tid = getTID_top( wp_gl.getSSMId( ) );
+		if( tid > 0 ){
+			wp_gl.read( tid-1 );	// MUST check
 			tdrawer.setWP( &wp_gl.data );
-//		}
+		}
+		wp_gl.readLast(  );
+		tdrawer.setWP( &wp_gl.data );
 
 		Gprint( "Start navi-viewer\n" );
 		while( !gShutOff ){
@@ -102,7 +94,6 @@ int main( int aArgc, char *aArgv[ ] )
 				update[ INDEX_LOCALIZER ] = false;
 			}
 			// get latest data for INDEX_WP
-//			if( ( update_id[ INDEX_WP ] < getTID_top( wp_gl.getSSMId( ) ) ) && !flag_monitor_position ){
 			if( update_id[ INDEX_WP ] < getTID_top( wp_gl.getSSMId( ) ) ){
 				wp_gl.readLast(  );
 				update[ INDEX_WP ] = true; // 最新情報を読み込む
@@ -119,7 +110,6 @@ int main( int aArgc, char *aArgv[ ] )
 				update[ INDEX_CONTROL ] = false;
 			}
 						
-//			if( update[ INDEX_WP ] && !flag_monitor_position ){
 			if( update[ INDEX_WP ] ){
 				tdrawer.setWP( &wp_gl.data );
 			}
@@ -133,10 +123,6 @@ int main( int aArgc, char *aArgv[ ] )
 			if( update[ INDEX_LOCALIZER ] ){
 				tdrawer.setPose( &localizer.data, localizer.time );
 							
-				//tdrawer.setPose( &localizer.data );
-				//if( flag_save ){
-					//tdrawer.log2txt_localizer( &localizer.data, localizer.time, start_time );
-				//}
 				if( counter >= keyframeSkip ){			// キーフレームのときだけ行う
 					// 描画範囲
 					tdrawer.setRange( localizer.data.estPose.x-RANGE, localizer.data.estPose.x+RANGE, localizer.data.estPose.y-RANGE, localizer.data.estPose.y+RANGE );
@@ -149,7 +135,6 @@ int main( int aArgc, char *aArgv[ ] )
 				usleepSSM( dT * 1000 );
 			}
 		}
-//		if( flag_save ) tdrawer.closeSaveFile( );
 
 	}
 	catch (std::runtime_error const & error){
@@ -183,7 +168,6 @@ static int printShortHelp( const char *programName )
 	fputs( "OPTION\n", stderr );
 	printf( "\t-l | --localizer SAVE   : Save localizer data to log_localizer.dat (default=%d)\n", flag_save_localizer );
 	printf( "\t-c | --control   SAVE   : Save control data to log_control.dat (default=%d)\n", flag_save_control );
-//	printf( "\t-m | --monitor   MONITOR: Monitor postion of vichle (defautl=%d)\n", flag_monitor_position );
 	printf( "\t-t | --s_time    TIME   : Wait time (defautl=%dms)\n", dT );
 	printf( "\n" );
 	return EXIT_SUCCESS;
@@ -195,7 +179,6 @@ static bool setOption(	int aArgc, char *aArgv[] )
 		{ "s_time", 1, 0, 't'},
 		{ "localizer", 1, 0, 'l' },
 		{ "control", 1, 0, 'c' },
-//		{ "monitor", 1, 0, 'm' },
 		{ "help", 0, 0, 'h' },
 		{ 0, 0, 0, 0 }
 	};
@@ -211,10 +194,6 @@ static bool setOption(	int aArgc, char *aArgv[] )
 		case 'c':
 			flag_save_control = true;
 			break;
-		//case 'm':
-			//flag_monitor_position = true;
-			//flag_save_control = false;
-			//break;
 		case 'h':
 			printShortHelp( aArgv[0] );
 			return false;
@@ -243,13 +222,11 @@ static void setupSSM( void )
 		std::cerr << "OK.\n";
 			
 	// wp_glを開く
-//	if( !flag_monitor_position ){
-		std::cerr << "open  wp_gl ... ";
-		if( !WP->open( SSM_READ ) )
-			throw std::runtime_error( "[\033[1m\033[31mERROR\033[30m\033[0m]:fail to open wp_gl on ssm.\n" );
-		else
-			std::cerr << "OK.\n";
-//	}
+	std::cerr << "open  wp_gl ... ";
+	if( !WP->open( SSM_READ ) )
+		throw std::runtime_error( "[\033[1m\033[31mERROR\033[30m\033[0m]:fail to open wp_gl on ssm.\n" );
+	else
+		std::cerr << "OK.\n";
 	
 	// controlを開く
 	if( flag_save_control ){

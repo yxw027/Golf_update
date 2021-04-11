@@ -43,17 +43,9 @@ static unsigned int dT = 100;
 static char device_name[ STRLEN ] = "/dev/ttyUSB0";
 static SSMApi <config, config_property> *CONF;
 
-//#ifdef MODBUS_UPDATE
-//static ModbusRTU_TempRef modbus;
-//#else
-//static ModbusRTU modbus;
-//#endif
 static ModbusRTU_CLASS modbus;
 static int id = 1;
 
-//static bool kbhit( void );
-//static void Gprint( const char *str );
-//static void Rprint( const char *str );
 static void sendCommand( int key );
 static void Usage( void );
 int main( int aArgc, char **aArgv )
@@ -175,12 +167,10 @@ static void Usage( void )
 {
 	printf( "USAGE\n" );
 	printf( "Hit the following key to send a command.\n" );
-//	printf( "<ID:%d>\n", id );
 	printf( "\t c : Chnage ID (Present ID=%d)\n", id );
 	printf( "\t p : Position\n" );
 	printf( "\t a : Angle\n" );
 	printf( "\t r : Read Register\n" );
-//	printf( "\t m : Get Present Step\n" );
 	printf( "\t s : Start\n" );
 	printf( "\t f : Free\n" );
 	printf( "\t z : Return Zero Position\n" );

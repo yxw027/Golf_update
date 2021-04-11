@@ -14,8 +14,6 @@
 
 #include "ModbusRTU.hpp"
 
-//#define NEW_VELOCITY_PROFILE
-
 //#define DEBUG
 #ifdef DEBUG
 #define DEBUG_PRINT(x) (x)
@@ -550,7 +548,7 @@ bool ModbusRTU_Base::readCommand( void )
 		else
 			cnt += ret;
 
-		if( cnt >= STR_MAX ){
+		if( cnt >= _STR_MAX ){
 			DEBUG_PRINT( fprintf(stderr, "[\033[1m\033[31mERROR\033[30m\033[0m]: Receive too many data.\n" ) );
 			return false;
 		}

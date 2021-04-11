@@ -6,10 +6,8 @@
 enum ROBOT_STATUS {
 	START,
 	NAVI,
-//	AVOID,
 	GOAL,
 	POSITIONING,
-//	CMD_WAITING,
 	DUMMY
 };
 

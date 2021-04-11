@@ -32,7 +32,7 @@ void GraphDrawerWP::setPose( localizer *data )
 			pos_data_ring_cnt++;
 		else 
 			pos_data_ring_cnt = PLOT_DATA_MAX;
-			
+	// WPの蓄積
 		bool ret = create_wp.setPose( data );
 		if( ret ){
 			wp_gl wp0 = create_wp.getWP( );
@@ -99,121 +99,6 @@ void GraphDrawerWP::drawGraph( void )
 	fflush( gp );
 }
 
-/*
-static unsigned long counter = 1;
-static bool flag_first_loop = true;
-static double pos_prev[ 3 ] = { 0 };
-static bool flag_second_loop = true;
-static double init_pose[ 3 ] = { 0 };
-static double vel_d = 0.0; // [m/s]
-static unsigned int cflag = 0;
-static unsigned int atype = 0;
-static unsigned int gid = 0;
-static bool flag_vehicleDirection_old;
-static double WP_theta_old;
-void GraphDrawerWP::saveWPFile( localizer *data, double time )
-{
-	if( data->status ){
-		
-		if( flag_first_loop ){
-		
-#ifdef NUM_GAIN_TYPE
-			fprintf( fp, "%6lu %15.4f %15.4f %15.4f	%15d %25d %12d\n", counter, data->estPose.x, data->estPose.y, vel_d, cflag, atype, gid );
-#else
-			fprintf( fp, "%6lu %15.4f %15.4f %15.4f	%15d %25d\n", counter, data->estPose.x, data->estPose.y, vel_d, cflag, atype );
-#endif
-			counter++;
-			pos_prev[ _X ] = data->estPose.x;
-			pos_prev[ _Y ] = data->estPose.y;
-			pos_prev[ _YAW ] = data->estPose.theta;
-			flag_first_loop = false;
-			flag_vehicleDirection_old = data->flag_slip;
-			WP_theta_old = data->estPose.theta;
-
-			init_pose[ _X ] = data->estPose.x;
-			init_pose[ _Y ] = data->estPose.y;
-			
-			// WPの蓄積
-			wp_data_ring[ wp_data_ring_head ][ _X ] = data->estPose.x;	
-			wp_data_ring[ wp_data_ring_head ][ _Y ] = data->estPose.y;
-			wp_data_ring_head++;
-			if( wp_data_ring_head >= PLOT_DATA_MAX )
-				wp_data_ring_head = 0;
-			if( wp_data_ring_cnt < PLOT_DATA_MAX )
-				wp_data_ring_cnt++;
-			else 
-				wp_data_ring_cnt = PLOT_DATA_MAX;
-		
-		} else {
-		
-			double dx = data->estPose.x - pos_prev[ _X ];
-			double dy = data->estPose.y - pos_prev[ _Y ];
-			double distance = sqrt( dx * dx + dy * dy );
-			double dtheta = trans_q( data->estPose.theta - pos_prev[ _YAW ] );
-//			fprintf(stderr,"d=%lf, th=%lf\n",distance, dTheta*180/M_PI );
-
-			if( ( distance > UPDATE_DIST ) || ( fabs( dtheta ) > UPDATE_THETA ) || ( flag_vehicleDirection_old != data->flag_slip ) ){
-				
-				if( flag_vehicleDirection_old == data->flag_slip ){ // data->flag_slip(true:前進, false:後退)
-					if( data->flag_slip ){
-						vel_d = data->gnss_vel[ _V ];
-					} else {
-						vel_d = -1.0 * data->gnss_vel[ _V ];
-					}
-				} else { // 前後退の切替え時
-					double WP_theta = atan2( data->estPose.y - pos_prev[ _Y ], data->estPose.x - pos_prev[ _X ] );
-//					printf("%f - %f = %f\n", WP_theta, WP_theta_old, fabs( WP_theta - WP_theta_old ) );	// 確認用
-					if( fabs( WP_theta - WP_theta_old ) < M_PI/4.0 ){
-						if( flag_vehicleDirection_old ){
-							vel_d = data->gnss_vel[ _V ];
-						} else {
-							vel_d = -1.0 * data->gnss_vel[ _V ];
-						}
-					} else {
-						if( data->flag_slip ){
-							vel_d = data->gnss_vel[ _V ];
-						} else {
-							vel_d = -1.0 * data->gnss_vel[ _V ];
-						}
-					}
-				}
-				vel_d = ( ( double )( int )( vel_d * 10 ) ) / 10.0;	// 小数点以下１桁にする
-#ifdef NUM_GAIN_TYPE
-				fprintf( fp, "%6lu %15.4f %15.4f %15.4f	%15d %25d %12d\n", counter, data->estPose.x, data->estPose.y, vel_d, cflag, atype, gid );
-#else
-				fprintf( fp, "%6lu %15.4f %15.4f %15.4f	%15d %25d\n", counter, data->estPose.x, data->estPose.y, vel_d, cflag, atype );
-#endif
-				counter++;
-			
-				WP_theta_old = atan2( data->estPose.y - pos_prev[ _Y ], data->estPose.x - pos_prev[ _X ] );
-				pos_prev[ _X ] = data->estPose.x;
-				pos_prev[ _Y ] = data->estPose.y;
-				pos_prev[ _YAW ] = data->estPose.theta;
-				// WPファイル確認用
-				fprintf( fp4chk, "%f %f %f %f %f\n", time, data->estPose.x, data->estPose.y, WP_theta_old, vel_d );
-								
-				if( flag_second_loop ){
-					flag_second_loop = false;
-					init_pose[ _YAW ] = atan2( dy, dx );
-				}
-				
-				// WPの蓄積
-				wp_data_ring[ wp_data_ring_head ][ _X ] = data->estPose.x;	
-				wp_data_ring[ wp_data_ring_head ][ _Y ] = data->estPose.y;
-				wp_data_ring_head++;
-				if( wp_data_ring_head >= PLOT_DATA_MAX )
-					wp_data_ring_head = 0;
-				if( wp_data_ring_cnt < PLOT_DATA_MAX )
-					wp_data_ring_cnt++;
-				else 
-					wp_data_ring_cnt = PLOT_DATA_MAX;
-			}
-			flag_vehicleDirection_old = data->flag_slip;
-		}
-	}
-	
-}
-*/
 void GraphDrawerWP::writeSaveFile( void )
 {
 	create_wp.saveWPFile( );

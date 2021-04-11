@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "utility.hpp"
 #include "localizer.hpp"
 #include "wp.hpp"
 
@@ -15,6 +16,7 @@ class createWP_Base
 protected:
 	FILE *savefp;
 	FILE *temp_fp;
+	char path[ STRLEN ];
 	wp_gl wp;
 
 	double distThre;
@@ -22,7 +24,7 @@ protected:
 	double initPose[ 3 ];
 	unsigned int wp_size;
 	
-	void openWPfile( const char *file, char *path, const char* mode );
+	void openWPfile( const char *file, char *p, const char* mode );
 	void writeInitPose( void );
 	void writeWPsize( void );
 	
@@ -34,7 +36,6 @@ public:
 	wp_gl getWP( void ){ return wp; }
 	void initialize( char *path );
 	
-//	void closeSaveFile( void );
 	virtual void saveWPFile( void );
 };
 

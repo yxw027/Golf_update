@@ -17,32 +17,12 @@ void GraphDrawerGNSS::setParameters( config_property *c, bool flag )
 {
 	flag_save = flag;
 	setConfig( c );
-//	conf = *CNF;
-	//double length = 2.0;// (m)
-	//double width = 2.0;	//(m)
-	//robot[ 0 ][ 0 ] = ( length / 2 ) - 0.2;	robot[ 0 ][ 1 ] = width / 2;
-	//robot[ 1 ][ 0 ] = ( length / 2 );			robot[ 1 ][ 1 ] = 0.0;
-	//robot[ 2 ][ 0 ] = ( length / 2 ) - 0.2;	robot[ 2 ][ 1 ] = -1.0 * ( width / 2 );
-	//robot[ 3 ][ 0 ] = -1.0 * ( length / 2 );	robot[ 3 ][ 1 ] = -1.0 * ( width / 2 );
-	//robot[ 4 ][ 0 ] = -1.0 * ( length / 2 );	robot[ 4 ][ 1 ] = width / 2;
 	
 	if( flag_save ){
 		savefile.openSaveFile( "log_gnss.dat" );
 	}
 }
-//void GraphDrawerGNSS::fprintf_robot( double *edges, int edge_num, double *pos )
-//{
-	//for( int i = 0; i <= edge_num; i++ ){
-		//int ii = i % edge_num;
 
-		//double x = edges[ ii * 2 ] * cos( pos[ 2 ] ) - edges[ ii * 2 + 1 ] * sin( pos[ 2 ] ) + pos[ 0 ];
-		//double y = edges[ ii * 2 ] * sin( pos[ 2 ] ) + edges[ ii * 2 + 1 ] * cos( pos[ 2 ] ) + pos[ 1 ];
-
-		//fprintf( gp, "%lf %lf\n", x, y );
-	//}
-
-	//fprintf( gp, "\n\n" );
-//}
 void GraphDrawerGNSS::drawGraph( void )
 {
 	fprintf( gp, "p " );

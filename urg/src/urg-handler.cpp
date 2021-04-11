@@ -150,8 +150,6 @@ static void setupSSM( void )
 	else
 		std::cerr << "OK.\n";
 
-	//inpProperty( &param, &ver, &Urg->property );
-
 	// set urg_fs.property
 	std::cerr << "\n" << "set urg_fs.property ... ";
 	if( !Urg->setProperty( ) )

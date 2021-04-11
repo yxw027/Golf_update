@@ -16,7 +16,6 @@
 
 #include "localizer.hpp"
 #include "config.hpp"
-//#include "TrajectoryDrawer.hpp"
 #include "utility.hpp"
 #include "control.hpp"
 #include "log2txt.hpp"

@@ -10,7 +10,7 @@
 #include "detectObstacle.hpp"
 #include "config.hpp"
 
-class GraphDrawerOBP : public GraphDrawer
+class GraphDrawerOBP_2D : public GraphDrawer
 {
 protected:
 	urg_fs scan;
@@ -23,8 +23,8 @@ protected:
 	config_property conf;
 
 public:
-	GraphDrawerOBP( void ) { }
-	~GraphDrawerOBP( void ) { }
+	GraphDrawerOBP_2D( void ) { }
+	~GraphDrawerOBP_2D( void ) { }
 
 	void setParameter( bool laser, bool intensity, config_property *c );
 	void setAreaType( int a )
@@ -36,7 +36,7 @@ public:
 	virtual void drawGraph( void );
 };
 
-class GraphDrawerOBP_3D : public GraphDrawerOBP
+class GraphDrawerOBP_3D : public GraphDrawerOBP_2D
 {
 public:
 	GraphDrawerOBP_3D( void ) { }

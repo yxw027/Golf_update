@@ -123,7 +123,6 @@ static void printShortHelp( const char *programName )
 	printf( "\t-t | --s_time      TIME   : Sampling time (defautl=%dms)\n", dT );
 	printf( "\t-i | --init_pos           : Use the initial position written in GM_Config.cfg (defautl=%d)(Use:0, NotUse:1)\n", flag_setInitPose );
 	printf( "\t-w | --wp_id       WP_ID  : Set WP's id (defautl=%d)\n", wp_id );
-//	printf( "\t-g | --gyro_odm    ODM    : Use gyro_odometory (defautl=%d)\n", flag_odm );
 }
 static bool setOption(	int aArgc, char *aArgv[] )
 {
@@ -132,7 +131,6 @@ static bool setOption(	int aArgc, char *aArgv[] )
 		{ "s_time", 1, 0, 't'},
 		{ "init_pos", 1, 0, 'i'},
 		{ "wp_id", 1, 0, 'w'},
-//		{ "gyro_odm", 1, 0, 'g'},
 		{ "help", 0, 0, 'h' },
 		{ 0, 0, 0, 0 }
 	};
@@ -149,9 +147,6 @@ static bool setOption(	int aArgc, char *aArgv[] )
 			flag_setInitPose = true;
 			wp_id = atoi( optarg );  
 			break;
-		//case 'g':
-			//flag_odm = false;
-			//break;
 		case 'h':
 			printShortHelp( aArgv[0] );
 			return false;

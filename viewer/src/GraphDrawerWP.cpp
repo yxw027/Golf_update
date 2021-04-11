@@ -48,46 +48,7 @@ void GraphDrawerWP::checkWP( void )
 	}
 
 }
-/*
-void GraphDrawerWP::checkWP( void )
-{
-	// 要チェック 
-	conf.cntl.clip_tgtSteering = DEG2RAD( conf.cntl.clip_tgtSteering );
-	conf.wp_info.TR = conf.robot_info.wheelbase / tan( conf.cntl.clip_tgtSteering );
-	printf( "conf.wp_info.TR=%f\n", conf.wp_info.TR );
 
-	for( int i = 0; i < wp_mgr.getNumWP( )-1 ; i++ ){
-		double dx = wp_mgr.getWPx( i+1 ) - wp_mgr.getWPx( i );
-		double dy = wp_mgr.getWPy( i+1 ) - wp_mgr.getWPy( i );
-		double dist = sqrt( dx*dx + dy*dy );
-		if( ( wp_mgr.getWPvel( i+1 ) / wp_mgr.getWPvel( i ) ) >= 0 ){
-			double dth = trans_q( wp_mgr.getWPth( i+1 ) - wp_mgr.getWPth( i ) );
-			double ll = conf.wp_info.TR * tan( dth / 2 );
-			ll = fabs( ll );
-		
-			double tmp = fabs( wp_mgr.getWPth( i ) ) * 1;	// 要チェック。1秒分遅れると予想
-			if( ( ll + tmp ) < ( dist - 0.5 ) ){
-				ll += tmp;
-			} else if( ll > ( dist - 0.5 ) ){
-				ll = dist * 0.4; // distの４割
-			}
-		
-			if( dist > ll ){
-				printf( "[WP%2d-WP%2d] dist=%8.4f[m], L=%8.4f[m], dth=%8.4f[rad]\n", wp_mgr.getWPid( i+1 ), wp_mgr.getWPid( i ), dist, ll, dth );
-			} else {
-				printf( "\033[1m\033[31m[WP%2d-WP%2d] dist=%8.4f[m], L=%8.4f[m], dth=%8.4f[rad]\033[30m\033[0m\n", wp_mgr.getWPid( i+1 ), wp_mgr.getWPid( i ), dist, ll, dth );
-			}
-		} else {
-			if( wp_mgr.getWPvel( i+1 ) < 0 ){
-				printf( "\x1b[32m\x1b[1m[WP%2d-WP%2d] dist=%8.4f[m], Backward\x1b[39m\x1b[0m\n", wp_mgr.getWPid( i+1 ), wp_mgr.getWPid( i ), dist );
-			} else {
-				printf( "\x1b[32m\x1b[1m[WP%2d-WP%2d] dist=%8.4f[m], Forward\x1b[39m\x1b[0m\n", wp_mgr.getWPid( i+1 ), wp_mgr.getWPid( i ), dist );
-			}
-		}
-	}
-	printf( "\n" );
-}
-*/
 #define RANGE 20	// 描画範囲[m]
 static bool flag_first_loop = true;
 void GraphDrawerWP::updateWP( void )

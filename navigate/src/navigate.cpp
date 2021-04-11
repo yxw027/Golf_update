@@ -110,9 +110,7 @@ int main( int aArgc, char *aArgv[] )
 				
 				update[ INDEX_LOCALIZER ] = update[ INDEX_JOYSTICK ] = update[ INDEX_OBP ] = false;
 				// get latest data for INDEX_LOCALIZER
-//				printf("(%d:%d)\n", update_id[ INDEX_LOCALIZER ],getTID_top( localizer.getSSMId( ) ) );
 				if( update_id[ INDEX_LOCALIZER ] < getTID_top( localizer.getSSMId( ) ) ){
-//					printf("(%d:%d)\n", update_id[ INDEX_LOCALIZER ],getTID_top( localizer.getSSMId( ) ) );
 					localizer.readLast(  );
 					update[ INDEX_LOCALIZER ] = true; // 最新情報を読み込む
 					update_id[ INDEX_LOCALIZER ] = localizer.timeId;

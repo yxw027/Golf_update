@@ -44,9 +44,6 @@ private:
 	int unknown_data_ring_cnt;
 	// ロボットの描写パラメータ
 	double robot_pos[ 3 ];
-//	double robot[ 5 ][ 2 ];
-	
-//	void fprintf_robot( double *edges, int edge_num, double *pos );
 
 public:
 	GraphDrawerGNSS( void ) : rtk_fix_data_ring_head( 0 ), rtk_fix_data_ring_cnt( 0 ), rtk_float_data_ring_head( 0 ), rtk_float_data_ring_cnt( 0 ),

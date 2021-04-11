@@ -10,7 +10,7 @@
 #define BAUDRATE_OM	B115200		//ボーレートの設定
 //#define BAUDRATE_OM	B57600		//ボーレートの設定
 //#define BAUDRATE_OM	B9600		//ボーレートの設定
-#define STR_MAX 128
+#define _STR_MAX 128
 #define SCI_VMIN 100000 //[us]
 #define SCI_TIMEOUT 5000*SCI_VMIN //[us]
 
@@ -25,10 +25,10 @@ class ModbusRTU_Base
 protected:
 	config_property conf;
 
-	char device[ STR_MAX ];	// デバイスファイル
-	unsigned char send_cmd[ STR_MAX ];
-	unsigned char read_cmd[ STR_MAX ];
-	unsigned char chk_cmd[ STR_MAX ];
+	char device[ _STR_MAX ];	// デバイスファイル
+	unsigned char send_cmd[ _STR_MAX ];
+	unsigned char read_cmd[ _STR_MAX ];
+	unsigned char chk_cmd[ _STR_MAX ];
 	int send_buffer_length;
 	int rev_buffer_length;
 	
