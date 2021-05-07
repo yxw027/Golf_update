@@ -5,7 +5,7 @@
 #define _HANDLE		2
 #define _LEVER		3
 
-#define _ACCEL_POS_MIN		15
+#define _ACCEL_POS_MIN		20
 #define _ACCEL_POS_NEUTRAL	35
 #define _ACCEL_POS_MAX		60
 

@@ -94,7 +94,7 @@ target_link_libraries(navigate m ssm)
 # urg-handler
 add_executable(urg-handler ./urg/src/urg-handler.cpp ./urg/src/lidar.cpp ./utility/src/utility.cpp)
 target_link_libraries(urg-handler m ssm scip2awd)
-add_executable(urg-viewer ./urg/src/urg-viewer.cpp ./urg/src/GraphDrawerURG.cpp ./utility/src/utility.cpp)
+add_executable(urg-viewer ./urg/src/urg-viewer.cpp ./urg/src/GraphDrawerURG.cpp ./utility/src/log2txt.cpp ./utility/src/utility.cpp)
 target_link_libraries(urg-viewer m ssm)
 #add_executable(urg-3Dviewer ./urg/src/urg-3Dviewer.cpp ./urg/src/GraphDrawerPCD.cpp ./utility/src/utility.cpp)
 #target_link_libraries(urg-3Dviewer m ssm ${PCL_LIBRARIES})

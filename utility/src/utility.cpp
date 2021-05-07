@@ -79,7 +79,7 @@ FILE* isValidFile( const char* filename, const char* mode, const char* ext )
 // 引数 FILEポインタ
 // 戻値 char型のデータ
 //*******************************
-#define MaxLine 300
+#define MaxLine 3000
 #define CmtChar '#'
 static char linebuf[MaxLine] = {'\0'};
 static char *cur_ptr = linebuf;

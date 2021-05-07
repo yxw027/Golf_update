@@ -12,6 +12,9 @@ void GraphDrawerPose::setParameters( config_property *c, bool flag )
 {
 	flag_save = flag;
 	setConfig( c );
+	if( flag_save ){
+		savefile.openSaveFile( "log_localizer.dat" );
+	}
 }
 
 void GraphDrawerPose::drawGraph( void )

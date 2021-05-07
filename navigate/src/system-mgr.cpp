@@ -50,6 +50,10 @@ void SystemMgr::initilize( const config_property c, char *device_name, bool a_fl
 	printf( "%8.3f # TURNING RADIUS [m] OF A MOBILE ROBOT\n", conf.wp_info.TR );	// 確認用
 
 	wp_mgr.initilize( conf, id, s );
+#ifdef FOLLOW_LINE_REAL_TIMMING
+	last_wp_cotrol = wp_mgr.getWPcurrent( );	// 一応、初期化
+#else
+#endif
 
 	if( !flag_analysis ){
 		modbus.openController( device_name );
@@ -175,10 +179,22 @@ static double steering_offset = 0;
 // 何秒後の予測ハンドル角用変数
 static double time_old = 0;
 static double tgtHandleAng_old = 0;
-static bool flag_first_loop = true; 
+static bool flag_first_loop = true;
 void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 {
 	int gid = wp.gain_id;
+
+#ifdef FOLLOW_LINE_REAL_TIMMING
+	if( ( SIGN( wp.v ) > 0 ) && ( odm->dir == false ) ){	// 速度命令に対して動作が間に合っていない場合（慣性）
+		wp = last_wp_cotrol;
+	} else if( ( SIGN( wp.v ) < 0 ) && ( odm->dir == true ) ){	// 速度命令に対して動作が間に合っていない場合（慣性）
+		wp = last_wp_cotrol;
+	} else {
+		last_wp_cotrol = wp;
+	}
+#else
+#endif
+	
 // ---------------- 目標ステアリング角を計算 --------------->
 	// 直線との距離を計算（直線より左側だと負、右側だと正（反時計回転が正））
 	double distance = ( wp.x - odm->estPose.x ) * sin( -1.0*wp.theta ) + ( wp.y - odm->estPose.y ) * cos( -1.0*wp.theta );
@@ -200,9 +216,14 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 	// 目標角速度のクリップ
 //	if( fabs( tgtAngVel ) > conf.navi.ang_vel ) tgtAngVel = SIGN( tgtAngVel ) * conf.navi.ang_vel;
 
+	if( odm->estPose.v <= 0.05 ){
+#ifdef CUTTING_ANGLE_ZERO
+	// 目標ステアリング角を求める。車両速度が0.1m/s以下のとき目標ステアリング角はゼロ// （単位：rad）
+		tgtSteeringAng = 0;
+#else
 	// 目標ステアリング角を求める。車両速度が0.1m/s以下のとき目標ステアリング角は変化なし// （単位：rad）
-	if( odm->estPose.v <= 0.1 ){
 //		tgtSteeringAng = 0;
+#endif
 	} else {
 		tgtSteeringAng = SIGN( wp.v ) * atan( conf.robot_info.wheelbase * tgtAngVel / odm->estPose.v );
 		// （取り合えず、20degでクリップ）
@@ -211,8 +232,8 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 // <-------------------------------------------
 
 //---------------- 現在のステアリング角とハンドル角を推定（handle_offsetの推定のため） -------> 
-	//車両の現在速度とスムージングした角速度から、現在のステアリング角を推定 
-	if( odm->estPose.v <= 0.1 ){
+	//車両の現在速度と角速度から、現在のステアリング角を推定 
+	if( odm->estPose.v <= 0.05 ){
 //		estSteeringAng = 0;
 	} else {
 		estSteeringAng = SIGN( wp.v ) * atan( conf.robot_info.wheelbase * odm->estPose.w / odm->estPose.v );
@@ -281,11 +302,11 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 
 // <---------------------------------------
 }
-
+#ifdef VELOCITY_CONTROL_INTEGRATION_VERSION
 // フィードフォワード用ストローク量の算出
 static double calTargetStroke( double vel )
 {
-	double ratio = 0.8;		// 算出量のratio割で出力(0 < ratio < 1)
+//	double ratio = 0.8;		// 算出量のratio割で出力(0 < ratio < 1)
 	double len;
 
 #ifdef SPEED_3000RPM	// 3000rpm
@@ -293,32 +314,65 @@ static double calTargetStroke( double vel )
 #else	// 1000〜1500rpm
 	len = 37.40 * vel + 31.97;
 #endif
-	if( vel >= 0 ) len *= ratio;
-	else {
-		double dl = len * ( 1.0 - ratio );
-		len += dl;
-	}
+	//if( vel >= 0 ) len *= ratio;
+	//else {
+		//double dl = len * ( 1.0 - ratio );
+		//len += dl;
+	//}
+//fprintf(stderr,"len=%f\n",len);
 	if( len > _ACCEL_POS_MAX )	len = _ACCEL_POS_MAX;
 	if( len < _ACCEL_POS_MIN )	len = _ACCEL_POS_MIN;
-		
 
 	return( len );
 }
+#else
+// フィードフォワード用ストローク量の算出
+static double calTargetStroke( double vel )
+{
+	double len;
 
+	if( vel == 0.0 ){
+		return _ACCEL_POS_NEUTRAL;
+
+	} else if( vel < 0.0 ){
+#ifdef SPEED_3000RPM	// 3000rpm
+		len = 10.31 * vel + 26.34;
+#else	// 1000〜1500rpm
+		len = 22.222 * vel + 25;
+#endif
+		if( len > _ACCEL_POS_NEUTRAL )	len = _ACCEL_POS_NEUTRAL;
+		if( len < _ACCEL_POS_MIN )		len = _ACCEL_POS_MIN;
+		
+	} else if( vel > 0.0 ){
+
+#ifdef SPEED_3000RPM	// 3000rpm
+		len = 9.7544 * vel + 41.791;
+#else	// 1000〜1500rpm
+		len = 21.834 * vel + 42.271;
+#endif
+//		fprintf( stderr, "len=%f\n", len );
+		
+		if( len < _ACCEL_POS_NEUTRAL )	len = _ACCEL_POS_NEUTRAL;
+		if( len > _ACCEL_POS_MAX )		len = _ACCEL_POS_MAX;
+	}
+	return( len );
+}
+#endif
 static int WPid = -1;
 static double time_old_velcntl = 0;
 static double dvel_current = 0;
 double SystemMgr::getTargetVelocity( double t )
 {
 	double vel = wp_current.v;
-//	return vel;
+
+#ifdef SET_DESIRED_VELOCITY_PROFILE
 	if( WPid != wp_current.id ){
 		WPid = wp_current.id;
 		time_old_velcntl = t;
 //		dvel_current = wp_mgr.getVel( -1 );
 	}
 	double diff_v = vel - dvel_current;
-//fprintf(stderr,"[%d]v=%f, v1=%f\n",wp_current.id,vel,dvel_current);
+//	fprintf( stderr, "[%d]v=%f, v1=%f\n", wp_current.id, vel, dvel_current );
 	if( diff_v == 0 ){
 		return vel;
 	} else if( diff_v > 0 ){
@@ -330,6 +384,9 @@ double SystemMgr::getTargetVelocity( double t )
 	}
 	time_old_velcntl = t;
 	return dvel_current;
+#else
+	return vel;
+#endif
 }
 static double v_integ = 0.0;		// 積分成分
 bool SystemMgr::ControlVelocity( localizer *odm, double t )
@@ -348,9 +405,10 @@ bool SystemMgr::ControlVelocity( localizer *odm, double t )
 		d_vel = getTargetVelocity( t );
 	}
 
-//fprintf(stderr, "dv=%f\n", d_vel );
-	
+//	fprintf( stderr, "dv=%f\n", d_vel );
+
 	// 速度制御
+#ifdef VELOCITY_CONTROL_INTEGRATION_VERSION
 	double calStroke = calTargetStroke( d_vel );
 	double dv = d_vel - SIGN( d_vel ) * odm->estPose.v;
 	double ratio = dv / fabs( d_vel );
@@ -359,7 +417,37 @@ bool SystemMgr::ControlVelocity( localizer *odm, double t )
 
 	if( inpPos > _ACCEL_POS_MAX )		inpPos = _ACCEL_POS_MAX;
 	if( inpPos < _ACCEL_POS_MIN )		inpPos = _ACCEL_POS_MIN;
+#else
+	double inpPos;
+	double calStroke = calTargetStroke( d_vel );
+//	fprintf( stderr, "calStroke=%f, \n",calStroke );
 
+	if( d_vel >= 0 ){
+		// 前進走行// 速度制御
+		double dv = d_vel - odm->estPose.v;
+//		fprintf( stderr, "dv=%f\n", dv );
+//		if( fabs( d_vel ) == 0 ) d_vel = SIGN( d_vel )*0.1;
+		double ratio = dv / fabs( d_vel );
+//		fprintf( stderr, "ratio=%f, v_integ=%f\n", ratio, v_integ );
+		v_integ += ( conf.cntl.v_K2 * ratio );
+//		fprintf( stderr, "v_integ=%f, conf.cntl.v_K2=%f\n", v_integ, conf.cntl.v_K2 );
+		inpPos = calStroke + ( conf.cntl.v_K1 * dv ) + v_integ;
+//		fprintf( stderr, "inpPos=%f\n", inpPos );
+		if( inpPos < _ACCEL_POS_NEUTRAL )	inpPos = _ACCEL_POS_NEUTRAL;
+		if( inpPos > _ACCEL_POS_MAX )		inpPos = _ACCEL_POS_MAX;
+
+	} else {
+		// 後退走行// 速度制御
+		double dv = d_vel + odm->estPose.v;		// odm->estPose.vは常にプラスのため＋の符号
+		double ratio = dv / fabs( d_vel );
+		v_integ += ( conf.cntl.v_K2 * ratio );
+		inpPos = calStroke + ( conf.cntl.v_K1 * dv ) + v_integ;
+
+		if( inpPos > _ACCEL_POS_NEUTRAL )	inpPos = _ACCEL_POS_NEUTRAL;
+		if( inpPos < _ACCEL_POS_MIN )		inpPos = _ACCEL_POS_MIN;
+	}
+//	fprintf(stderr,"inpPos=%f\n",inpPos);
+#endif
 	if( flag_analysis ){
 		if( odm->estPose.v < 0.1 ) inpPos = _ACCEL_POS_NEUTRAL;// 解析モード時は、速度0.1m/s以下ではストローク量_ACCEL_POS_NEUTRAL一定
 	}
@@ -395,7 +483,7 @@ bool SystemMgr::sendAccelOrder( void )
 	return true;
 }
 
-static bool flag_limit = false;
+//static bool flag_handle_angle_limit = false;
 static double recordAng = 0;
 bool SystemMgr::sendHandleOrder( void )
 {
@@ -413,20 +501,20 @@ bool SystemMgr::sendHandleOrder( void )
 		// インフォメーション発行かトルク800以上の場合、それ以上回転しないように処理する
 		if( modbus.getInfoCode( _HANDLE ) == 2 ){
 			modbus.clearPositionDeviation( _HANDLE );
-			flag_limit = true;
+			flag_handle_angle_limit = true;
 			recordAng = curAng;
 			inAng = -1.0 * SIGN( tau_s ) * conf.motor.invHandleInput;
 			modbus.resetPositionDeviation( _HANDLE );
 		} else if( fabs( tau_s ) > conf.motor.thrHandleTorque ){
-			flag_limit = true;
+			flag_handle_angle_limit = true;
 			recordAng = curAng;
 			inAng = -1.0 * SIGN( tau_s ) * conf.motor.invHandleInput;
 		}
-		if( flag_limit ){
+		if( flag_handle_angle_limit ){
 			if( fabs( tau_s ) > conf.motor.thrHandleTorque ){
 				inAng = -1.0 * SIGN( tau_s ) * conf.motor.invHandleInput;
 			} else {
-				flag_limit = false;
+				flag_handle_angle_limit = false;
 			}
 		}
 

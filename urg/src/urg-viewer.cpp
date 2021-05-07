@@ -13,7 +13,7 @@
 #include "utility.hpp"
 #include "GraphDrawerURG.hpp"
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define DEBUG_PRINT(x) (x)
 #else
@@ -32,6 +32,7 @@ static int sensor_id = 0;
 static bool flag_intensity = false;
 static bool flag_laser = false;
 static unsigned int dT = 100;	// 100ms
+static bool flag_save = false;
 
 // SSM valiant
 static SSMApi <urg_fs, urg_property> *Urg;
@@ -48,7 +49,7 @@ int main( int aArgc, char *aArgv[] )
 		setSigInt( );
 
 		GraphDrawerURG gdrawer;
-		gdrawer.setParameter( flag_laser, flag_intensity, &urg_fs.property );
+		gdrawer.setParameter( flag_laser, flag_intensity, &urg_fs.property, flag_save );
 		gdrawer.initGnuplot( );				// gnuplot初期化
 		gdrawer.setRange( 20, 20 );
 
@@ -70,7 +71,7 @@ int main( int aArgc, char *aArgv[] )
 			if( update[ INDEX_URG ] ){
 
 				DEBUG_PRINT( printf( "size = %d\n", urg_fs.data.size ) );
-				gdrawer.setScan( &urg_fs.data );
+				gdrawer.setScan( &urg_fs.data, urg_fs.time );
 				gdrawer.drawGraph( );
 
 			} else {
@@ -111,6 +112,7 @@ static void printShortHelp( const char *programName )
 	printf( "\t-i | --intensity           : Use Intensity data. (default=%d)\n", flag_intensity );
 	printf( "\t-l | --laser               : Draw laser. (default=%d)\n", flag_laser );
 	printf( "\t-n | --number       NUMBRE : set sensor ID number. (default=%d)\n", sensor_id );
+	printf( "\t-s | --save                : Save log data (default=%d)\n", flag_save );
 	printf( "\t-t | --s_time       TIME   : Wait time (defautl=%dms)\n", dT );
 }
 static bool setOption(	int aArgc, char *aArgv[] )
@@ -121,11 +123,12 @@ static bool setOption(	int aArgc, char *aArgv[] )
 		{ "s_time", 1, 0, 't'},
 		{ "intensity", 1, 0, 'i' },
 		{ "laser", 1, 0, 'l' },
+		{ "save", 1, 0, 's' },
 		{ "help", 0, 0, 'h' },
 		{ 0, 0, 0, 0 }
 	};
 
-	while( ( opt = getopt_long( aArgc, aArgv, "n:t:ilh", longOpt, &optIndex ) ) != -1 ){
+	while( ( opt = getopt_long( aArgc, aArgv, "n:t:ilsh", longOpt, &optIndex ) ) != -1 ){
 		switch ( opt ){
 		case 'n':
 			sensor_id = atoi( optarg );
@@ -138,6 +141,9 @@ static bool setOption(	int aArgc, char *aArgv[] )
 			break;
 		case 'l':
 			flag_laser = true;
+			break;
+		case 's':
+			flag_save = true; 
 			break;
 		case 'h':
 			printShortHelp( aArgv[0] );

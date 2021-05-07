@@ -7,9 +7,12 @@
 #include "utility.hpp"
 #include "GraphDrawerURG.hpp"
 
-void GraphDrawerURG::setScan( urg_fs *urg )
+void GraphDrawerURG::setScan( urg_fs *urg, double t )
 {
 	scan = *urg;
+	if( flag_save ){
+		savefile.log2txt( urg, t );
+	}
 }
 void GraphDrawerURG::drawGraph( void )
 {

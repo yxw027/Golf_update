@@ -17,12 +17,16 @@
 
 class SystemMgr
 {
-private:
+protected:
 	ModbusRTU_CLASS modbus;	// モータードライバと接続
 	WP_MGR_CLASS wp_mgr;
 	wp_gl wp_current;		// 車両代表点におけるWP
 	wp_gl wp_control;		// ライン追従制御に使用するWP（先読みWP, ポジショニングWP）
-	
+#ifdef FOLLOW_LINE_REAL_TIMMING
+	wp_gl last_wp_cotrol;	// 1つ前のライン追従制御用WP（前後退切替時に実際に動作が切り替わるまで使用）
+#else
+#endif
+
 	enum ROBOT_STATUS robot_status;	// ロボットの状態
 	config_property conf;
 	
@@ -34,12 +38,13 @@ private:
 	
 	control debug;	// 制御変数の確認用
 	OMcntl motor_save;	// 解析モードでない場合は、３つのモータの情報をSSMへ登録する
+	bool flag_handle_angle_limit;	// ハンドルがロックしている場合-->true
 
 	void resetParameter( void );
 	double getTargetVelocity( double t );	// 目標車両速度の算出
 
 public:
-	SystemMgr( void ) : flag_emergency( true ) { }
+	SystemMgr( void ) : flag_emergency( true ), flag_handle_angle_limit( false ) { }
 	~SystemMgr( void ){ }
 
 	void initilize( const config_property c, char *device_name, bool a_flag, unsigned int id, ROBOT_STATUS s );
@@ -55,8 +60,8 @@ public:
 	OMcntl getMotorData( void ){ return motor_save; }
 	control getControlData( void ){ return debug; }
 	
-	bool followLine( localizer *odm, double t );
-	bool ControlVelocity( localizer *odm, double t );
+	virtual bool followLine( localizer *odm, double t );
+	virtual bool ControlVelocity( localizer *odm, double t );
 
 	void stopVehicle( void );
 	bool setCuttingUnit( void );

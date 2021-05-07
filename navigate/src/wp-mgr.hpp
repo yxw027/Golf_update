@@ -76,9 +76,10 @@ class WpMgr_Proactive : public WpMgr_Positioning
 {
 protected:
 	unsigned int proactive_wp_cnt;	// 先読みWPのカウント
+	double proactive_time;		// 先読み時間
 
 public:
-	WpMgr_Proactive( void ) { }
+	WpMgr_Proactive( void ) : proactive_time( 2.0 ) { }
 	~WpMgr_Proactive( void ){ }
 
 	wp_gl getWP4Proactive( localizer *odm );	// 1秒先のWPを出力

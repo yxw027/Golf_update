@@ -334,7 +334,7 @@ wp_gl WpMgr_Proactive::getWP4Proactive( localizer *odm )
 	offset_gl[ _Y ] = 0;
 		
 	unsigned int wp_skip_cnt = 0;
-	double estDist = odm->estPose.v * 2.0;	// 2.0秒先の距離を予測
+	double estDist = odm->estPose.v * proactive_time;//2.0;	// 2.0秒先の距離を予測
 	double tx = wp[ wp_cnt ].x - odm->estPose.x;
 	double ty = wp[ wp_cnt ].y - odm->estPose.y;
 	double dist = sqrt( tx*tx + ty*ty );

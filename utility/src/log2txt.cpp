@@ -110,7 +110,7 @@ bool Log2Txt_Localizer::log2txt( localizer *data, double t )
 		} else {
 			fprintf( savefp, "%f ", t );	// 1
 			fprintf( savefp, "%f ", t - start_time );	// 2
-		
+
 			fprintf( savefp, "%f ", data->estPose.x );	// 3
 			fprintf( savefp, "%f ", data->estPose.y );	// 4
 			fprintf( savefp, "%f ", data->estPose.theta );	//5
@@ -135,7 +135,7 @@ bool Log2Txt_Localizer::log2txt( localizer *data, double t )
 void Log2Txt_OMcntl::setMotorID( int i )
 {
 	id = i;
-	if( ( id != _ACCEL ) || ( id != _HANDLE ) || ( id != _LEVER ) ){
+	if( ( id != _ACCEL ) && ( id != _HANDLE ) && ( id != _LEVER ) ){
 		fprintf( stderr, "Error! Log2Txt_OMcntl::setMotorID\n" );
 		exit( EXIT_FAILURE );
 	}
@@ -210,9 +210,29 @@ bool Log2Txt_Control::log2txt( control *data, double t )
 		// 速度制御用変数
 		fprintf( savefp, "%f ", data->cVel.calStroke );		// 14 速度に対する、予め計算したストローク量
 		fprintf( savefp, "%f ", data->cVel.inpPos );		// 15 モータードライバへ入力したストローク量（mm）
-		fprintf( savefp, "%f ", data->cVel.curPos * 10.0 );	// 16 現在のストローク量
-
+		fprintf( savefp, "%f ", data->cVel.curPos * 10.0 );	// 16 現在のストローク量（x10でmmへ変換）
+		fprintf( savefp, "%f ", data->cVel.d_vel );			// 17 目標速度
+		fprintf( savefp, "%f ", data->cVel.vel );			// 18 現在速度
 		fprintf( savefp, "\n" );
+	}
+	return true;
+}
+// ************************** for urg ********************************
+bool Log2Txt_URG::log2txt( urg_fs *data, double t )
+{
+	if( flag_first_loop ){
+		start_time = t;
+		flag_first_loop = false;
+		return false;
+	} else {
+		fprintf( savefp, "%f ", t );	// 1
+		fprintf( savefp, "%f ", t - start_time );	// 2
+		fprintf( savefp, "%d ", data->size );	// 3
+		for( int i = 0 ; i < data->size ; i++ ){
+			fprintf( savefp, "%f ", data->length[ i ] );	// 4
+			fprintf( savefp, "%f ", data->angle[ i ] );	// 5
+			fprintf( savefp, "%d", data->intensity[ i ] );	// 6
+		}
 	}
 	return true;
 }

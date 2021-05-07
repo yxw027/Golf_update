@@ -2,22 +2,27 @@
 
 2) imu_rt --> OK (チェック済）
 
-3) gnss-F9P --> OK (チェック待ち）--> GPS時間を秒に変換（linux_timeへの変換が必要）
+3) gnss-F9P --> OK (チェック待ち）--> GPS時間を秒に変換（linux_timeへの変換が必要）--> OK (UTCを秒に変換のみ)(チェック済）
 
 3) localizer --> OK (チェック待ち）
-   --> 速度計算を要確認（gnss-f9pのGPS時間を確認）
+   --> 速度計算を要確認（gnss-f9pのGPS時間を確認） --> OK (チェック済）
 
-4) OMcntl --> OK (チェック待ち）
 
-5) joystick --> OK (チェック待ち）
+4) OMcntl --> OK (チェック待ち） --> OK (チェック済）
 
-6) navigate --> OK (チェック待ち）--> 動作しない（要デバッグ）--> デバッグ済
+
+5) joystick --> OK (チェック待ち） --> OK (チェック済）
+
+
+6) navigate --> OK (チェック待ち）--> 動作しない（要デバッグ）--> デバッグ済 --> OK (チェック済）
+
 
 7) viewer -->
    vel-viewer --> OK (チェック済)
    WP-viewer --> OK (チェック済)
    control-log2txt --> OK (チェック待ち）
-   navi-viewer --> 先読みWP用のviewerを作成予定 --> OK (チェック待ち）
+   navi-viewer --> 先読みWP用のviewerを作成予定 --> OK (チェック待ち） --> OK (チェック済）
+
 
 8) detectObstacle --> OK (チェック待ち）
 

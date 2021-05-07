@@ -99,8 +99,8 @@ static void printShortHelp( const char *programName )
 	fprintf( stderr, "\t$ %s [   options    ]\n", programName );
 	fprintf( stderr, "\t$ %s -m 5 -s\n", programName );
 	printf( "OPTION\n" );
-	printf( "\t-m | --mode                : Change display mode. 1:gyro, 2:accel, 3:mag, 4:temp., 5:estimated theta (default=%d)\n", graph_mode );
-	printf( "\t-s | --save                : Save log data (default=%d)\n", flag_save );
+	printf( "\t-m | --mode                : Change display mode. 1:AngVel, 2:accel, 3:mag, 4:temp., 5:estAng (default=%d)\n", graph_mode );
+	printf( "\t-s | --save                : Save log data (1:Save default=%d)\n", flag_save );
 }
 static bool setOption(	int aArgc, char *aArgv[] )
 {

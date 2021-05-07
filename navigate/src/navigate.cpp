@@ -73,7 +73,7 @@ int main( int aArgc, char *aArgv[] )
 	SSMApi<obp_fs> obp_fs( OBP_SNAME, 0 );
 		OBPoint = &obp_fs;
 		
-	SystemMgr navi;
+	SystemMgr_CLASS navi;
 		
 	try {
 		setupSSM( );

@@ -41,5 +41,5 @@ target_link_libraries(urg-handler m ssm scip2awd)
 add_executable(urg-viewer ./src/urg-viewer.cpp ./src/GraphDrawerURG.cpp ../utility/src/utility.cpp)
 target_link_libraries(urg-viewer m ssm)
 
-add_executable(urg-3Dviewer ./src/urg-3Dviewer.cpp ./src/GraphDrawerPCD.cpp ../utility/src/utility.cpp)
+add_executable(urg-3Dviewer ./src/urg-3Dviewer.cpp ./src/GraphDrawerPCD.cpp ../utility/src/log2txt.cpp ../utility/src/utility.cpp)
 target_link_libraries(urg-3Dviewer m ssm ${PCL_LIBRARIES})

@@ -35,13 +35,14 @@ public:
 	recordMotor( void ) { }
 	~recordMotor( void ) { }
 	
-	void Free( void ){ Free( ); }
-	void setZeroPosition( void ){ setZeroPosition( ); }
+	void Start( void ){ operateJoystick::Start( ); }
+	void Free( void ){ operateJoystick::Free( ); }
+	void setZeroPosition( void ){ operateJoystick::setZeroPosition( ); }
 	bool Record( void )
 	{
-		getMotorInfo( _ACCEL );
-		getMotorInfo( _HANDLE );
-		getMotorInfo( _LEVER );
+		operateJoystick::getMotorInfo( _ACCEL );
+		operateJoystick::getMotorInfo( _HANDLE );
+		operateJoystick::getMotorInfo( _LEVER );
 		return true;
 	}
 };

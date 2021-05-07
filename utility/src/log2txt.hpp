@@ -14,6 +14,7 @@
 #include "localizer.hpp"
 #include "OMcntl.hpp"
 #include "control.hpp"
+#include "urg.hpp"
 
 class Log2Txt_Base
 {
@@ -23,7 +24,7 @@ protected:
 	double start_time;
 	
 public:
-	Log2Txt_Base( void ){ }
+	Log2Txt_Base( void ) : start_time( 0 ), flag_first_loop( true ) { }
 	~Log2Txt_Base( void ){ }
 	void openSaveFile( const char *save_filename );
 	void closeSaveFile( void )
@@ -78,6 +79,15 @@ public:
 	~Log2Txt_Control( void ){ }
 	
 	bool log2txt( control *data, double t );
+};
+// ************************** for urg ********************************
+class Log2Txt_URG : public Log2Txt_Base
+{
+public:
+	Log2Txt_URG( void ){ }
+	~Log2Txt_URG( void ){ }
+	
+	bool log2txt( urg_fs *data, double t );
 };
 #endif
 

@@ -100,7 +100,7 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 				vel[ _Y ] = dy / time_diff;    // y軸方向の速度ベクトルを計算
 				vel[ _V ] = sqrt( vel[ _X ] * vel[ _X ] + vel[ _Y ] * vel[ _Y ] );    // 速度ベクトルのノルムを計算
 				estPose.v = vel[ _V ];
-//				printf("%f\n",time_diff );
+				printf("%f\n",time_diff );
 				
 				// GNSSの方位推定(この後、IMUの方位と融合)	
 				double dx01 = estPose.x - refPos_b01m[ _X ];
@@ -114,8 +114,8 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 					return false;
 				}
 
-				// 10cm以上進んだ場合、Yaw角の融合
-				if( ( dL > 0.1 ) ){
+				// 30cm以上進んだ場合、Yaw角の融合
+				if( ( dL > 0.3 ) ){
 					
 					// imu_offsetの更新	// 前進・後退の設定
 					double gnss_ang_offset = trans_q( estYaw_gnss - imu->estAng[ _YAW ] - imu_offset );

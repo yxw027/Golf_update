@@ -12,12 +12,12 @@
 
 //******* GNSS-F9P **********************************
 //+++++++++ 楕円対高でなく標高を使用してENUへ変換後、Zを標高へ置き換え +++++++
-#define USE_ELEVATION
+//#define USE_ELEVATION
 
 
 //******* IMU ***************************************
-//#define IMU_CLASS	RT_9axisIMU
-#define IMU_CLASS	RT_9axisIMU_ACII
+#define IMU_CLASS	RT_9axisIMU
+//#define IMU_CLASS	RT_9axisIMU_ACII
 //#define IMU_CLASS	RT_9axisIMU_ACII_SIMPLE
 
 
@@ -36,9 +36,18 @@
 
 
 //******** Navigator *********************************
+#define SystemMgr_CLASS SystemMgr
+
 //+++++++ 回転数の設定 +++++++++
 #define SPEED_3000RPM
-
+//+++++++ 目標速度プロファイルを設定 +++++++++
+//#define SET_DESIRED_VELOCITY_PROFILE 
+//+++++++ 前後退の速度制御をまとめたプログラムを使用 +++++++++
+#define VELOCITY_CONTROL_INTEGRATION_VERSION 
+//+++++++ 低速時にタイヤ切れ角ゼロの設定 +++++++++
+//#define CUTTING_ANGLE_ZERO
+//+++++++ 前後退切替時に実際に動作が切り替わったタイミングを確認してFollowLine用のWPを切り替える設定 +++++++++
+#define FOLLOW_LINE_REAL_TIMMING
 
 //******* Navi Viewer *********************************
 //#define NAVI_VIEWER_CLASS	GraphDrawerTrajectory
