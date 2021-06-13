@@ -216,7 +216,7 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 	// 目標角速度のクリップ
 //	if( fabs( tgtAngVel ) > conf.navi.ang_vel ) tgtAngVel = SIGN( tgtAngVel ) * conf.navi.ang_vel;
 
-	if( odm->estPose.v <= 0.05 ){
+	if( odm->estPose.v <= 0.2 ){
 #ifdef CUTTING_ANGLE_ZERO
 	// 目標ステアリング角を求める。車両速度が0.1m/s以下のとき目標ステアリング角はゼロ// （単位：rad）
 		tgtSteeringAng = 0;
@@ -233,7 +233,7 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 
 //---------------- 現在のステアリング角とハンドル角を推定（handle_offsetの推定のため） -------> 
 	//車両の現在速度と角速度から、現在のステアリング角を推定 
-	if( odm->estPose.v <= 0.05 ){
+	if( odm->estPose.v <= 0.2 ){
 //		estSteeringAng = 0;
 	} else {
 		estSteeringAng = SIGN( wp.v ) * atan( conf.robot_info.wheelbase * odm->estPose.w / odm->estPose.v );

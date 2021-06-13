@@ -19,6 +19,7 @@
 #include <fstream>
 
 #include <ssm.hpp>
+#include "framework.hpp"
 #include "wp-mgr.hpp"
 #include "config.hpp"
 #include "utility.hpp"
@@ -44,7 +45,9 @@ void WpMgr_Base::initilize( const config_property c, unsigned int id, ROBOT_STAT
 		exit( EXIT_FAILURE );
 	}
 
+//	printf( "wp_num=%d\n", wp_num );
 	for( int i = 0; i < wp_num ; i++ ){
+//		printf( "%d,", i );
 		wp[ i ].id = atoi( getWord( fp_wp ) );
 		wp[ i ].x = atof( getWord( fp_wp ) );
 		wp[ i ].y = atof( getWord( fp_wp ) );
@@ -287,9 +290,12 @@ wp_gl WpMgr_Positioning::getWP4Positioning( localizer *odm )
 	flag_update_wp = false;	// WPを更新しない
 	
 	// とりあえず、ここでオフセットを設定しておく
-	offset_gl[ _X ] = 0.3;
-	offset_gl[ _Y ] = 0.3;
-	
+//	offset_gl[ _X ] = 0.3;
+//	offset_gl[ _Y ] = 0.3;
+	double offset_lc = 0.3;
+	offset_gl[ _X ] = offset_lc * cos( wp[ wp_cnt ].theta );
+	offset_gl[ _Y ] = offset_lc * sin( wp[ wp_cnt ].theta );
+		
 	if( flag_positioning_forward ){
 		flag_positioning_forward = false;
 		// 位置・姿勢の範囲を確認
@@ -306,11 +312,22 @@ wp_gl WpMgr_Positioning::getWP4Positioning( localizer *odm )
 				return wp[ wp_cnt ];
 			}
 		}
+		// とりあえず、ここでオフセットを設定しておく
+		double offset_lc = 0.3;
+		offset_gl[ _X ] = offset_lc * cos( wp_positioning[ 1 ].theta );
+		offset_gl[ _Y ] = offset_lc * sin( wp_positioning[ 1 ].theta );
+		
 		return wp_positioning[ 1 ];
 		
 	} else {
 		flag_positioning_forward = true;
 		positioning_loop_cnt++;
+		
+		// とりあえず、ここでオフセットを設定しておく
+		double offset_lc = 0.3;
+		offset_gl[ _X ] = offset_lc * cos( wp_positioning[ 0 ].theta );
+		offset_gl[ _Y ] = offset_lc * sin( wp_positioning[ 0 ].theta );
+		
 		return wp_positioning[ 0 ];
 		
 	}
@@ -354,14 +371,25 @@ wp_gl WpMgr_Proactive::getWP4Proactive( localizer *odm )
 		for( int i = 0 ; i < wp_skip_cnt ; i++ ){
 			if( SIGN( wp[ wp_cnt + i ].v ) == SIGN( wp[ wp_cnt ].v ) ){
 				wp_skip_cnt = i;
-				offset_gl[ _X ] = 0.3;	// 要検討
-				offset_gl[ _Y ] = 0.3;
+//				offset_gl[ _X ] = 0.3;	// 要検討
+//				offset_gl[ _Y ] = 0.3;
+				if( ( ( wp_cnt + wp_skip_cnt ) == ( wp_cnt ) ) && ( SIGN( wp[ wp_cnt + 1 ].v ) != SIGN( wp[ wp_cnt ].v ) ) ){
+					double offset_lc = 0.3;
+					offset_gl[ _X ] = offset_lc * cos( wp[ wp_cnt ].theta );
+					offset_gl[ _Y ] = offset_lc * sin( wp[ wp_cnt ].theta );
+				}
 			}
 		}
 	}
+//	printf("      [%d]offset_gl[ _X ]=%f, offset_gl[ _Y ]=%f\n", wp[ wp_cnt + wp_skip_cnt ].id, offset_gl[ _X ], offset_gl[ _Y ] );
+//	printf("      v=%f, dir=%d\n", odm->estPose.v, odm->dir );
+#ifdef Update_Proactive_WP_AnyTime
+	proactive_wp_cnt = wp_cnt + wp_skip_cnt;
+#else
 	if( proactive_wp_cnt < ( wp_cnt + wp_skip_cnt ) ){
 		proactive_wp_cnt = wp_cnt + wp_skip_cnt;
 	}
+#endif
 	return wp[ proactive_wp_cnt ];
 }
 // ********************* getWPの関連 *************************

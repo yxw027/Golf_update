@@ -19,7 +19,7 @@ IF(NOT EIGEN3_INCLUDE_DIR)
 ENDIF() 
 
 find_package(PCL 1.1 REQUIRED)
-include_directories(../config/src ../utility/src ../viewer/src ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS})
+include_directories(./src ../config/src ../utility/src ../viewer/src ../imu_rt/src ../gnss-f9p/src ../localizer/src ../OMcntl/src ../navigate/src ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
@@ -38,7 +38,7 @@ message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
 add_executable(urg-handler ./src/urg-handler.cpp ./src/lidar.cpp ../utility/src/utility.cpp)
 target_link_libraries(urg-handler m ssm scip2awd)
 
-add_executable(urg-viewer ./src/urg-viewer.cpp ./src/GraphDrawerURG.cpp ../utility/src/utility.cpp)
+add_executable(urg-viewer ./src/urg-viewer.cpp ./src/GraphDrawerURG.cpp ../utility/src/utility.cpp ../utility/src/log2txt.cpp)
 target_link_libraries(urg-viewer m ssm)
 
 add_executable(urg-3Dviewer ./src/urg-3Dviewer.cpp ./src/GraphDrawerPCD.cpp ../utility/src/log2txt.cpp ../utility/src/utility.cpp)

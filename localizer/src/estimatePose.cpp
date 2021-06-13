@@ -37,6 +37,7 @@ void estimatePose::setParameters( const config_property c, bool flag, unsigned i
 	
 	gnss_offset[ _X ] = ( double )cnf.gnss.offset[ _X ] / 1000.0;
 	gnss_offset[ _Y ] = ( double )cnf.gnss.offset[ _Y ] / 1000.0;
+	gnss_offset[ _Z ] = ( double )cnf.gnss.offset[ _Z ] / 1000.0;
 
 }
 
@@ -55,7 +56,11 @@ static double refPos_b01m[ 2 ] = { 0.0 };	// 0.1m?前の車両代表点
 static double refPos_b1step[ 2 ] = { 0.0 };	// １ステップ前の車両代表点
 static double vel[ 3 ] = { 0.0 };	// １ステップ前の車両代表点を使って計算した速度
 static double gnss_time_past = 0;
+#ifdef Use_transReferencePoint_3D
+static void transReferencePoint( rtk_gnss_f9p *pos, double roll, double pitch, double yaw );
+#else
 static void transReferencePoint( rtk_gnss_f9p *pos, double yaw );
+#endif
 static bool flag_VehicleDirection = true;//(前進:true, 後退:false)
 bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *est )
 {
@@ -65,9 +70,13 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 	if( gnss->status ){
 		
 		if( flag_first_loop_fusionEstPose ){	// 初期状態の処理
-			
+#ifdef Use_transReferencePoint_3D			
+			// 車両代表点に変換
+			transReferencePoint( gnss, imu->estAng[ _ROLL ], imu->estAng[ _PITCH ], estPose.theta );
+#else
 			// 車両代表点に変換
 			transReferencePoint( gnss, estPose.theta );
+#endif
 			estPose.x = refPos[ _X ];
 			estPose.y = refPos[ _Y ];
 			estPose.v = 0;
@@ -87,9 +96,13 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 			double time_diff = gnss->utc_time - gnss_time_past;
 
 			if( time_diff > 0 ){
-				
+#ifdef Use_transReferencePoint_3D			
+				// 車両代表点に変換
+				transReferencePoint( gnss, imu->estAng[ _ROLL ], imu->estAng[ _PITCH ], estPose.theta );
+#else
 				// 車両代表点に変換
 				transReferencePoint( gnss, estPose.theta );
+#endif				
 				estPose.x = refPos[ _X ];
 				estPose.y = refPos[ _Y ];
 
@@ -100,7 +113,7 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 				vel[ _Y ] = dy / time_diff;    // y軸方向の速度ベクトルを計算
 				vel[ _V ] = sqrt( vel[ _X ] * vel[ _X ] + vel[ _Y ] * vel[ _Y ] );    // 速度ベクトルのノルムを計算
 				estPose.v = vel[ _V ];
-				printf("%f\n",time_diff );
+//				printf("%f\n",time_diff );
 				
 				// GNSSの方位推定(この後、IMUの方位と融合)	
 				double dx01 = estPose.x - refPos_b01m[ _X ];
@@ -166,6 +179,32 @@ bool estimatePose::fusionEstPose( rtk_gnss_f9p *gnss, imu_fs *imu, localizer *es
 
 	return false;
 }
+#ifdef Use_transReferencePoint_3D
+static void transReferencePoint( rtk_gnss_f9p *pos, double roll, double pitch, double yaw )
+{
+//	printf("roll=%f, pitch=%f, yaw=%f\n", roll, pitch, yaw );
+	double A[ 3 ][ 3 ];
+	// 回転行列の計算
+	A[ 0 ][ 0 ] = cos( yaw ) * cos( pitch );
+	A[ 0 ][ 1 ] = -1.0 * sin( yaw ) * cos( roll ) + cos( yaw ) * sin( pitch ) * sin( roll );
+	A[ 0 ][ 2 ] = sin( yaw ) * sin( roll ) + cos( yaw ) * sin( pitch ) * cos( roll );
+	A[ 1 ][ 0 ] = sin( yaw ) * cos( pitch );
+	A[ 1 ][ 1 ] = cos( yaw ) * cos( roll ) + sin( yaw ) * sin( pitch ) * sin( roll );
+	A[ 1 ][ 2 ] = -1.0 * cos( yaw ) * sin( roll ) + sin( yaw ) * sin( pitch ) * cos( roll );
+	A[ 2 ][ 0 ] = -1.0 * sin( pitch );
+	A[ 2 ][ 1 ] = cos( pitch ) * sin( roll );
+	A[ 2 ][ 2 ] = cos( pitch ) * cos( roll );
+	// 代表点の位置へ座標変換
+//	printf("gnss_offset[ _X ]=%f, gnss_offset[ _Y ]=%f, gnss_offset[ _Z ]=%f\n", gnss_offset[ _X ],gnss_offset[ _Y ],gnss_offset[ _Z ]);
+	double dx = A[ 0 ][ 0 ] * gnss_offset[ _X ] + A[ 0 ][ 1 ] * gnss_offset[ _Y ] + A[ 0 ][ 2 ] * gnss_offset[ _Z ];
+	double dy = A[ 1 ][ 0 ] * gnss_offset[ _X ] + A[ 1 ][ 1 ] * gnss_offset[ _Y ] + A[ 1 ][ 2 ] * gnss_offset[ _Z ];
+//	double dz = A[ 2 ][ 0 ] * gnss_offset[ _X ] + A[ 2 ][ 1 ] * gnss_offset[ _Y ] + A[ 2 ][ 2 ] * gnss_offset[ _Z ];
+//	printf("dx=%f, dy=%f\n", dx,dy);
+	refPos[ _X ] = pos->enu.x + dx;
+	refPos[ _Y ] = pos->enu.y + dy;
+//	printf("refPos[ _X ]=%f, refPos[ _Y ]=%f\n", refPos[ _X ],refPos[ _Y ]);
+}
+#else
 static void transReferencePoint( rtk_gnss_f9p *pos, double yaw )
 {
 	double A11 = cos( yaw );
@@ -177,9 +216,10 @@ static void transReferencePoint( rtk_gnss_f9p *pos, double yaw )
 	gnss_offset_gl[ _X ] = A11 * gnss_offset[ _X ] + A12 * gnss_offset[ _Y ];
 	gnss_offset_gl[ _Y ] = A21 * gnss_offset[ _X ] + A22 * gnss_offset[ _Y ];
 
-	refPos[ _X ] = pos->enu.x - gnss_offset_gl[ _X ];
-	refPos[ _Y ] = pos->enu.y - gnss_offset_gl[ _Y ];
+	refPos[ _X ] = pos->enu.x + gnss_offset_gl[ _X ];
+	refPos[ _Y ] = pos->enu.y + gnss_offset_gl[ _Y ];
 }
+#endif
 void estimatePose::setInitPose( Spur_Odometry p )
 {
 	estPose = p;

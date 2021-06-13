@@ -25,7 +25,7 @@ protected:
 	void calcWPOffset( void );
 	
 public:
-	WpMgr_Base( void ) : wp_cnt( 1 ), wp_num( 1 ) { }
+	WpMgr_Base( void ) : wp_cnt( 1 ), wp_num( 1 ){ }
 	~WpMgr_Base( void ){ free( wp ); }
 
 	void printAllWP( void );

@@ -162,12 +162,14 @@ void GraphDrawerTrajectory_Proactive::setPose( localizer *est, double t )
 
 //	wp_mgr.printWPcurrent( );	// 確認用
 
+//	wp_mgr.getWP( est );
+//	wp_mgr.calcWPOffset( );
 	// 到達判定後にWPを登録
 	if( wp_mgr.chkOverLine( est ) ){
-
 		wp_mgr.CountUpWP( );
 		wp_gl wp = wp_mgr.getWPcurrent( );
-		
+
+//		printf("WP%d\n",wp.id);		// 確認用
 		wp_data_ring[ wp_data_ring_head ][ _X ] = wp.x;
 		wp_data_ring[ wp_data_ring_head ][ _Y ] = wp.y;
 		wp_id_ring[ wp_data_ring_head ] = wp.id;

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <cstddef>
 #include <ssmtype/spur-odometry.h>
+//#include "framework.hpp"
 #include "localizer.hpp"
 #include "config.hpp"
 #include "wp.hpp"
@@ -69,6 +70,7 @@ protected:
 	int wp_proactive_data_ring_cnt;
 
 	WpMgr_Base wp_mgr;
+//	WP_MGR_CLASS wp_mgr;
 
 public:
 	GraphDrawerTrajectory_Proactive( void ) : wp_proactive_data_ring_head( 0 ), wp_proactive_data_ring_cnt( 0 ) {  }
