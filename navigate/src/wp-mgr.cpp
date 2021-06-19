@@ -24,6 +24,10 @@
 #include "config.hpp"
 #include "utility.hpp"
 
+#ifdef Use_Follow_Circle
+static void calcCenterOfCircle( wp_gl *w, int cnt );
+#else
+#endif
 // *************************************************************************************
 // ***************** 基本クラス。WPファイルから読み込んで順次出力 ************************
 // *************************************************************************************
@@ -62,6 +66,10 @@ void WpMgr_Base::initilize( const config_property c, unsigned int id, ROBOT_STAT
 		wp[ i ].flag_cut = atoi( getWord( fp_wp ) );
 		wp[ i ].area_type = atoi( getWord( fp_wp ) );
 		wp[ i ].gain_id = atoi( getWord( fp_wp ) );
+#ifdef Use_Follow_Circle
+		wp[ i ].circle[ _R ] = atof( getWord( fp_wp ) );
+//		printf( "[%d] R=%f\n", i, wp[ i ].circle[ _R ] );
+#endif
 	}
 	for( int i = 0; i < wp_num ; i++ ){
 		if( i == 0 ){
@@ -70,6 +78,15 @@ void WpMgr_Base::initilize( const config_property c, unsigned int id, ROBOT_STAT
 			wp[ i ].theta = atan2( wp[ i ].y - wp[ i-1 ].y, wp[ i ].x - wp[ i-1 ].x );
 		}
 	}
+#ifdef Use_Follow_Circle
+		calcCenterOfCircle( wp, wp_num );
+		//for( int i = 0; i < wp_num ; i++ ){
+			//printf( "[%d]x=%f, y=%f\n", i, wp[ i ].circle[ _X ], wp[ i ].circle[ _Y ] );
+////			printf( "%d %f %f\n", i, wp[ i ].circle[ _X ], wp[ i ].circle[ _Y ] );
+			//printf( "[%d] R=%f\n", i, wp[ i ].circle[ _R ] );
+		//}
+#else
+#endif
 	fclose( fp_wp );
 	
 	offset_gl[ _X ] = 0.0;
@@ -78,6 +95,53 @@ void WpMgr_Base::initilize( const config_property c, unsigned int id, ROBOT_STAT
 	printAllWP( );		// 確認用
 	setStartWPid( id );
 }
+#ifdef Use_Follow_Circle
+static void calcCenterOfCircle( wp_gl *w, int cnt )
+{
+	double p1[ 2 ], p2[ 2 ], p3[ 2 ];
+	for( int i = 0; i < cnt ; i++ ){
+		if( w[ i ].circle[ _R ] == 0 ) continue;	// 円弧でなければスキップ
+		p1[ _X ] = w[ i ].x;	// WP(i)を登録
+		p1[ _Y ] = w[ i ].y;
+		p2[ _X ] = w[ i+1 ].x;	// WP(i+1)を登録
+		p2[ _Y ] = w[ i+1 ].y;
+//		printf("x1=%f,y1=%f,,x2=%f,y2=%f\n",p1[0],p1[1],p2[0],p2[1]);
+		if( w[ i+1 ].circle[ _R ] == 0 ){	// 1つ先のWPが円弧でない場合
+			if( w[ i-1 ].circle[ _R ] == 0 ){
+				fprintf( stderr, "Error. Must check WP[%d]. in calcCenterOfCircle\n", i );
+				exit( EXIT_FAILURE );
+			} else {
+				p1[ _X ] = w[ i-1 ].x;	// WP(i-1)を登録
+				p1[ _Y ] = w[ i-1 ].y;
+				p2[ _X ] = w[ i ].x;	// WP(i)を登録
+				p2[ _Y ] = w[ i ].y;
+			}
+		}
+		// 中点Pを算出
+		p3[ _X ] = ( p1[ _X ] + p2[ _X ] ) / 2.0;
+		p3[ _Y ] = ( p1[ _Y ] + p2[ _Y ] ) / 2.0;
+		// 各辺の長さ
+		double dist_a = sqrt( ( p3[ _X ] - p2[ _X ] ) * ( p3[ _X ] - p2[ _X ] ) + ( p3[ _Y ] - p2[ _Y ] ) * ( p3[ _Y ] - p2[ _Y ] ) );
+		double dist_b = sqrt( w[ i ].circle[ _R ] * w[ i ].circle[ _R ] - ( dist_a * dist_a ) );
+//		printf("a=%f, b=%f\n", dist_a, dist_b );
+		// 角度
+//		double fai = atan2( ( p3[ _Y ] - p1[ _Y ] ), ( p3[ _X ] - p1[ _X ] ) );
+		double fai = atan2( ( p3[ _X ] - p1[ _X ] ), ( p3[ _Y ] - p1[ _Y ] ) );
+		// 円の中心位置を算出
+		if( w[ i ].circle[ _R ] < 0 ){
+			w[ i ].circle[ _X ] = p3[ _X ] + dist_b * cos( fai );
+			w[ i ].circle[ _Y ] = p3[ _Y ] - dist_b * sin( fai );
+		} else {
+			w[ i ].circle[ _X ] = p3[ _X ] - dist_b * cos( fai );
+			w[ i ].circle[ _Y ] = p3[ _Y ] + dist_b * sin( fai );
+		}
+//		printf( "[%d]x=%f, y=%f\n", i, w[ i ].circle[ _X ], w[ i ].circle[ _Y ] );
+//		printf( "%d %f %f\n", i, w[ i ].circle[ _X ], w[ i ].circle[ _Y ] );
+//		printf( "[%d] R=%f\n", i, w[ i ].circle[ _R ] );
+	}
+}
+#else
+#endif
 // ********************* getWPの関連 *************************
 wp_gl WpMgr_Base::getWP( localizer *odm )
 {

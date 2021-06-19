@@ -17,7 +17,7 @@
 #include "estimatePose.hpp"
 #include "framework.hpp"
 
-static double gnss_offset[ 2 ];	// 車両代表点への変換用変数
+static double gnss_offset[ 3 ];	// 車両代表点への変換用変数
 void estimatePose::setParameters( const config_property c, bool flag, unsigned int wp_id )
 {
 	cnf = c;
@@ -226,6 +226,7 @@ void estimatePose::setInitPose( Spur_Odometry p )
 	imu_offset = p.theta;// プログラム実行時のIMUのYaw角はゼロ度
 //	printEstPose( );
 }
+#include "wp-mgr.hpp"
 void estimatePose::setInitPose( unsigned int wp_id )
 {
 	WpMgr_Base wp_mgr;

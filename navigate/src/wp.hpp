@@ -3,6 +3,13 @@
 
 #define WP_SNAME	"wp_gl"
 
+#include "framework.hpp"
+
+#ifdef Use_Follow_Circle
+#define _R	2
+#else
+#endif
+
 enum ROBOT_STATUS {
 	START,
 	NAVI,
@@ -18,6 +25,12 @@ typedef struct {
 	unsigned int flag_cut;
 	int area_type;
 	int gain_id;
+	
+#ifdef Use_Follow_Circle
+	double circle[ 3 ];	//	[0]center(x), [1]center(y), [2]radius
+#else
+#endif
+
 } wp_gl;
 
 

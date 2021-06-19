@@ -3,7 +3,7 @@
 
 #include "ModbusRTU.hpp"
 #include "9axisIMU.hpp"
-#include "wp-mgr.hpp"
+//#include "wp-mgr.hpp"
 
 //******* ModbusRTU *********************************
 //#define ModbusRTU_CLASS	ModbusRTU_DirectOrder
@@ -53,6 +53,9 @@
 //#define CUTTING_ANGLE_ZERO 1
 //+++++++ 前後退切替時に実際に動作が切り替わったタイミングを確認してFollowLine用のWPを切り替える設定 +++++++++
 #define FOLLOW_LINE_REAL_TIMMING 1
+
+//+++++++ 円弧追従を使用 +++++++++
+#define Use_Follow_Circle	1
 
 //******* Navi Viewer *********************************
 //#define NAVI_VIEWER_CLASS	GraphDrawerTrajectory

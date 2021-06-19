@@ -196,14 +196,40 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 #endif
 	
 // ---------------- 目標ステアリング角を計算 --------------->
+#ifdef Use_Follow_Circle
+	double distance;	// 直線または円弧との距離を計算（直線より左側だと負、右側だと正（反時計回転が正））
+//	double tgtTheta;	// 直線または円弧に対する目標侵入角度を計算 //（単位：rad）
+	if( wp.circle[ _R ] == 0 ){	// 直線の場合
+		distance = ( wp.x - odm->estPose.x ) * sin( -1.0*wp.theta ) + ( wp.y - odm->estPose.y ) * cos( -1.0*wp.theta );
+//		tgtTheta = distance * conf.cntl.l_K1[ gid ];
+	} else {	// 円弧の場合
+		double rr = sqrt( ( wp.circle[ _X ] - odm->estPose.x ) * ( wp.circle[ _X ] - odm->estPose.x ) + ( wp.circle[ _Y ] - odm->estPose.y ) * ( wp.circle[ _Y ] - odm->estPose.y ) );
+		distance = rr - fabs( wp.circle[ _R ] );
+//		printf("[%d] rr=%f, d=%f, ", wp.id, rr, distance );
+	}
+#else
 	// 直線との距離を計算（直線より左側だと負、右側だと正（反時計回転が正））
 	double distance = ( wp.x - odm->estPose.x ) * sin( -1.0*wp.theta ) + ( wp.y - odm->estPose.y ) * cos( -1.0*wp.theta );
+#endif
 	// 直線に対する目標侵入角度を計算 //（単位：rad）
 	double tgtTheta = distance * conf.cntl.l_K1[ gid ];
 	// 目標侵入角度をクリップ
 	if( fabs( tgtTheta ) > conf.cntl.clip_tgtAngle ) tgtTheta = SIGN( tgtTheta ) * conf.cntl.clip_tgtAngle;
+
 	// 世界座標系における車両の目標進行方位 // （単位：角度）
+#ifdef Use_Follow_Circle
+	if( wp.circle[ _R ] == 0 ){	// 直線の場合
+		tgtTheta = trans_q( tgtTheta + wp.theta );
+	} else {	// 円弧の場合
+		double ang_tmp = atan2( ( odm->estPose.y - wp.circle[ _Y ] ), ( odm->estPose.x - wp.circle[ _X ] ) );
+		ang_tmp = trans_q( ang_tmp );
+		double wp_theta = trans_q( ang_tmp + SIGN( wp.circle[ _R ] ) * ( M_PI / 2.0 ) );
+		tgtTheta = trans_q( tgtTheta + wp_theta );
+//		printf("ang_tmp=%f, th=%f\n", ang_tmp, wp_theta);
+	}
+#else
 	tgtTheta = trans_q( tgtTheta + wp.theta );
+#endif
 
 	// 現在の車両の進行方位から見た目標進行方位との差分を計算し，時定数を考慮した上で目標角速度を求める（最大角速度でクリップ） // （単位：rad/s）
 	double tgtAngVel;
@@ -212,7 +238,7 @@ void SystemMgr::My_Spur_line_GL( wp_gl wp, localizer *odm, double t )
 	} else {	// バック走行の場合
 		tgtAngVel = conf.cntl.l_K2[ gid ] * trans_q( tgtTheta - odm->estPose.theta + M_PI );
 	}
-	
+
 	// 目標角速度のクリップ
 //	if( fabs( tgtAngVel ) > conf.navi.ang_vel ) tgtAngVel = SIGN( tgtAngVel ) * conf.navi.ang_vel;
 
